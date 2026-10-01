@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="東京・清澄白河のスペシャルティコーヒー店、KOGANE ROASTERY。静けさと香りを愉しむ一杯を。">
+  <meta name="theme-color" content="#0c0b09">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <!-- 単一ファイルで完結し、外部スクリプトを許可しないセキュリティポリシー -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
+  <title>KOGANE ROASTERY｜静けさを味わう珈琲店</title>
+  <style>
+    /* ---------- Design tokens ---------- */
+    :root {
+      --ink: #0c0b09;
+      --ink-soft: #15130f;
+      --wood: #2b1c12;
+      --gold: #c6a15b;
+      --gold-pale: #e6d1a4;
+      --cream: #eee8dc;
+      --muted: #a9a093;
+      --line: rgba(198, 161, 91, .25);
+      --serif: "Yu Mincho", "Hiragino Mincho ProN", Georgia, serif;
+      --sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--cream);
+      background: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.8;
+      letter-spacing: .04em;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 10;
+      opacity: .09;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+    }
+    a { color: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 2px solid var(--gold-pale); outline-offset: 5px; }
+    .skip-link { position: fixed; top: -80px; left: 20px; z-index: 100; padding: 12px 18px; background: var(--gold); color: var(--ink); }
+    .skip-link:focus { top: 20px; }
+
+    /* ---------- Header ---------- */
+    .header {
+      position: absolute;
+      inset: 0 0 auto;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px clamp(22px, 5vw, 76px);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .logo { text-decoration: none; font-family: var(--serif); letter-spacing: .18em; font-size: 1rem; }
+    .logo span { color: var(--gold); }
+    .nav { display: flex; gap: clamp(18px, 3vw, 46px); }
+    .nav a { color: #ddd5c9; text-decoration: none; font-size: .72rem; letter-spacing: .14em; }
+    .nav a:hover { color: var(--gold-pale); }
+
+    /* ---------- Hero ---------- */
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      isolation: isolate;
+      background:
+        radial-gradient(circle at 67% 44%, rgba(198,161,91,.22), transparent 17%),
+        linear-gradient(110deg, rgba(0,0,0,.9) 8%, rgba(10,8,5,.54) 55%, rgba(0,0,0,.85)),
+        repeating-linear-gradient(92deg, #2b1b10 0, #160f0a 3px, #392416 8px, #1c120c 13px);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      width: min(43vw, 620px);
+      aspect-ratio: 1;
+      right: 7vw;
+      top: 52%;
+      transform: translateY(-50%);
+      border-radius: 50%;
+      border: 1px solid rgba(230,209,164,.22);
+      box-shadow: 0 0 0 40px rgba(198,161,91,.025), 0 0 120px rgba(198,161,91,.1), inset 0 0 90px #000;
+      background:
+        radial-gradient(circle at 44% 42%, #b9874c 0 2%, transparent 3%),
+        radial-gradient(circle at 58% 64%, #8d552c 0 3%, transparent 4%),
+        radial-gradient(circle at 65% 37%, #71401f 0 2%, transparent 3%),
+        radial-gradient(circle, #3b2112 0 12%, #1a0f0a 48%, #090705 70%);
+      opacity: .82;
+      z-index: -1;
+    }
+    .hero-inner { width: min(1180px, 88vw); padding-top: 92px; }
+    .eyebrow { display: flex; align-items: center; gap: 14px; margin: 0 0 20px; color: var(--gold); font-size: .67rem; letter-spacing: .28em; text-transform: uppercase; }
+    .eyebrow::before { content: ""; width: 42px; height: 1px; background: var(--gold); }
+    h1 { margin: 0; font: 400 clamp(3rem, 8.8vw, 8rem)/.98 var(--serif); letter-spacing: .05em; text-shadow: 0 7px 40px #000; }
+    .hero-copy { max-width: 520px; margin: 32px 0 40px; color: #c5beb3; font-family: var(--serif); font-size: clamp(.95rem, 1.5vw, 1.15rem); }
+    .button { display: inline-flex; align-items: center; justify-content: center; min-height: 54px; padding: 0 30px; border: 1px solid var(--gold); color: var(--ink); background: var(--gold); text-decoration: none; font-size: .76rem; letter-spacing: .16em; transition: .3s ease; }
+    .button:hover { background: transparent; color: var(--gold-pale); transform: translateY(-2px); }
+    .scroll-note { position: absolute; bottom: 28px; left: 50%; transform: translateX(-50%); color: var(--muted); font-size: .58rem; letter-spacing: .28em; writing-mode: vertical-rl; }
+    .scroll-note::after { content: ""; display: inline-block; width: 1px; height: 42px; margin-top: 12px; background: linear-gradient(var(--gold), transparent); }
+
+    /* ---------- Shared sections ---------- */
+    section { padding: clamp(92px, 12vw, 160px) clamp(22px, 7vw, 100px); }
+    .inner { width: min(1160px, 100%); margin: 0 auto; }
+    .section-kicker { margin: 0 0 14px; color: var(--gold); font-size: .64rem; letter-spacing: .3em; text-transform: uppercase; }
+    h2 { margin: 0 0 34px; font: 400 clamp(2rem, 5vw, 4.4rem)/1.25 var(--serif); letter-spacing: .08em; }
+    .lead { max-width: 630px; color: #aaa297; font-size: .9rem; }
+
+    /* ---------- Story ---------- */
+    .story { background: var(--ink-soft); }
+    .story-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(50px, 10vw, 150px); align-items: center; }
+    .story-art { position: relative; aspect-ratio: 4/5; border: 1px solid var(--line); overflow: hidden; background: linear-gradient(145deg, #3b2516, #0e0b09 70%); }
+    .story-art::before { content: "香\Aり"; white-space: pre; position: absolute; inset: 50% auto auto 50%; transform: translate(-50%,-50%); color: rgba(198,161,91,.32); font: 400 clamp(5rem, 12vw, 9rem)/.85 var(--serif); }
+    .story-art::after { content: "HAND ROASTED / TOKYO"; position: absolute; bottom: 24px; left: 24px; color: var(--gold); font-size: .55rem; letter-spacing: .22em; }
+    .signature { margin-top: 36px; color: var(--gold-pale); font: italic 1.15rem var(--serif); }
+
+    /* ---------- Menu ---------- */
+    .menu-head { display: flex; align-items: end; justify-content: space-between; gap: 30px; margin-bottom: 54px; }
+    .menu-head h2 { margin-bottom: 0; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+    .menu-card { position: relative; min-height: 430px; padding: 38px 30px; background: #100f0c; overflow: hidden; }
+    .menu-card::before { content: attr(data-no); position: absolute; right: 18px; bottom: -28px; color: rgba(198,161,91,.06); font: 8rem var(--serif); }
+    .menu-icon { width: 78px; height: 78px; margin: 28px auto 55px; color: var(--gold); }
+    .menu-card h3 { margin: 0 0 12px; font: 400 1.35rem var(--serif); letter-spacing: .08em; }
+    .menu-card p { min-height: 76px; margin: 0; color: var(--muted); font-size: .78rem; }
+    .price { display: block; margin-top: 28px; color: var(--gold-pale); font: 1.05rem var(--serif); }
+
+    /* ---------- Visit ---------- */
+    .visit { border-top: 1px solid var(--line); background: linear-gradient(115deg, #21150e, #0c0b09 58%); }
+    .visit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(60px, 12vw, 170px); }
+    .info-list { margin: 8px 0 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    .info-list li { display: grid; grid-template-columns: 110px 1fr; gap: 18px; padding: 22px 0; border-bottom: 1px solid var(--line); font-size: .82rem; }
+    .info-list strong { color: var(--gold); font-size: .67rem; letter-spacing: .16em; }
+    .contact-panel { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+    .contact-panel p { color: var(--muted); max-width: 430px; margin: 0 0 32px; font-size: .85rem; }
+    .contact-links { display: flex; flex-wrap: wrap; gap: 12px; }
+    .button.ghost { color: var(--gold-pale); background: transparent; }
+    .button.ghost:hover { color: var(--ink); background: var(--gold); }
+
+    /* ---------- Footer ---------- */
+    footer { display: flex; justify-content: space-between; gap: 20px; padding: 30px clamp(22px, 5vw, 76px); border-top: 1px solid var(--line); color: #756e65; font-size: .6rem; letter-spacing: .14em; }
+
+    /* ---------- Reveal animation ---------- */
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .reveal { opacity: 1; transform: none; }
+    }
+    @media (max-width: 760px) {
+      .header { padding: 22px; }
+      .nav a:not(:last-child) { display: none; }
+      .hero::before { width: 80vw; right: -30vw; opacity: .6; }
+      .hero-inner { width: calc(100% - 44px); }
+      h1 { font-size: clamp(3.2rem, 18vw, 5.6rem); }
+      .story-grid, .visit-grid { grid-template-columns: 1fr; }
+      .story-art { aspect-ratio: 4/3; }
+      .menu-head { display: block; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .menu-card { min-height: 350px; }
+      .menu-icon { margin: 12px auto 32px; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">本文へ移動</a>
+  <header class="header">
+    <a class="logo" href="#top" aria-label="KOGANE ROASTERY トップへ">KOGANE <span>●</span></a>
+    <nav class="nav" aria-label="メインナビゲーション">
+      <a href="#story">私たちの想い</a>
+      <a href="#menu">メニュー</a>
+      <a href="#visit">店舗情報</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <!-- ファーストビュー -->
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-inner">
+        <p class="eyebrow">Specialty coffee in Tokyo</p>
+        <h1 id="hero-title">静けさを、<br>味わう。</h1>
+        <p class="hero-copy">選び抜いた豆を、季節と向き合いながら少量ずつ焙煎。<br>慌ただしい日々に、香りほどける余白を。</p>
+        <a class="button" href="#menu">おすすめを見る</a>
+      </div>
+      <span class="scroll-note" aria-hidden="true">SCROLL</span>
+    </section>
+
+    <!-- 店舗紹介 -->
+    <section class="story" id="story">
+      <div class="inner story-grid">
+        <div class="story-art reveal" aria-hidden="true"></div>
+        <div class="reveal">
+          <p class="section-kicker">Our philosophy</p>
+          <h2>一杯の奥にある、<br>物語まで届けたい。</h2>
+          <p class="lead">生産地の風景や作り手の想いを大切に、個性がもっとも輝く焙煎を探ります。黒と木の落ち着いた空間で、豆を挽く音、湯気の向こうの香り、ゆっくり流れる時間をお愉しみください。</p>
+          <p class="signature">— KOGANE Roast Master</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- おすすめメニュー -->
+    <section id="menu">
+      <div class="inner">
+        <div class="menu-head reveal">
+          <div>
+            <p class="section-kicker">Signature menu</p>
+            <h2>おすすめの三杯</h2>
+          </div>
+          <p class="lead">その日の気分に寄り添う、個性の異なる味わい。</p>
+        </div>
+        <div class="menu-grid reveal">
+          <article class="menu-card" data-no="01">
+            <svg class="menu-icon" viewBox="0 0 80 80" aria-hidden="true"><path d="M15 29h44v17c0 13-9 22-22 22S15 59 15 46V29Z M59 35h5c8 0 8 14 0 14h-6 M25 20c0-5 5-5 5-10 M39 20c0-5 5-5 5-10" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            <h3>黄金ブレンド</h3>
+            <p>カカオの深いコク、黒糖の甘み。余韻までなめらかな、店の象徴となる一杯。</p>
+            <span class="price">¥680</span>
+          </article>
+          <article class="menu-card" data-no="02">
+            <svg class="menu-icon" viewBox="0 0 80 80" aria-hidden="true"><path d="M21 67h38l-4-45H25l-4 45Z M28 32h24 M30 42h20 M33 16h14" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            <h3>琥珀カフェラテ</h3>
+            <p>濃密なエスプレッソときめ細かなミルク。自家製きび糖シロップをほんの少し。</p>
+            <span class="price">¥740</span>
+          </article>
+          <article class="menu-card" data-no="03">
+            <svg class="menu-icon" viewBox="0 0 80 80" aria-hidden="true"><path d="M18 35h44v29H18V35Z M23 35c2-13 32-13 34 0 M30 27c-2-7 5-11 10-6 4-8 14-2 10 6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            <h3>季節のテリーヌ</h3>
+            <p>深煎り珈琲に合わせた、口どけのよいショコラテリーヌ。季節の果実を添えて。</p>
+            <span class="price">¥820</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 営業時間・アクセス・お問い合わせ -->
+    <section class="visit" id="visit">
+      <div class="inner visit-grid">
+        <div class="reveal">
+          <p class="section-kicker">Visit us</p>
+          <h2>店舗のご案内</h2>
+          <ul class="info-list">
+            <li><strong>住所</strong><span>東京都江東区清澄 2-8-12</span></li>
+            <li><strong>営業時間</strong><span>08:00 — 19:00</span></li>
+            <li><strong>定休日</strong><span>火曜日</span></li>
+            <li><strong>アクセス</strong><span>清澄白河駅 A3出口より徒歩4分</span></li>
+          </ul>
+        </div>
+        <div class="contact-panel reveal">
+          <p class="section-kicker">Contact</p>
+          <h2>心ほどける一杯を、<br>ご用意してお待ちしています。</h2>
+          <p>ご予約、貸切、豆のご相談はお電話またはメールで承ります。返信には1〜2営業日いただく場合がございます。</p>
+          <div class="contact-links">
+            <a class="button" href="tel:+81312345678" aria-label="電話 03-1234-5678">03-1234-5678</a>
+            <a class="button ghost" href="mailto:hello@example.com?subject=KOGANE%20ROASTERY%E3%81%B8%E3%81%AE%E3%81%8A%E5%95%8F%E3%81%84%E5%90%88%E3%82%8F%E3%81%9B">メールで問い合わせ</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>KOGANE ROASTERY</span>
+    <span>© <span id="year">2026</span> KOGANE. ALL RIGHTS RESERVED.</span>
+  </footer>
+
+  <script>
+    // IntersectionObserverを使い、画面に入った要素だけを穏やかに表示する。
+    const revealItems = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries, currentObserver) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            currentObserver.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.14 });
+      revealItems.forEach((item) => observer.observe(item));
+    } else {
+      revealItems.forEach((item) => item.classList.add('visible'));
+    }
+
+    // 表示年を端末の年に合わせる。ユーザー入力は扱わず、DOMへの危険なHTML挿入もしない。
+    document.getElementById('year').textContent = String(new Date().getFullYear());
+  </script>
+</body>
+</html>
