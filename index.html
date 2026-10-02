@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#171916">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  <meta name="description" content="KOMOREBI — 一杯のコーヒーと、心ほどける時間。黒・木目・ゴールドで描く、架空のカフェのデモサイトです。">
-  <title>KOMOREBI | 一杯のコーヒーと、心ほどける時間。</title>
+  <meta name="description" content="KOMOREBIは架空のカフェのWeb制作サンプルです。単一HTMLの構成、SVGの図版、スマホメニュー、問い合わせ表示の設計と変更手順を解説します。">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://firstmake.fmfm-stars.workers.dev/">
+  <title>KOMOREBI | カフェのWeb制作サンプル・実装解説</title>
   <style>
     /* ===== 編集ガイド =====
        CSS・SVG・JavaScriptをすべてこのファイルに内包。通信・ビルド不要です。
@@ -49,6 +51,15 @@
     .section-title { margin: 14px 0 24px; font: 400 clamp(30px, 3.5vw, 44px)/1.6 var(--serif); letter-spacing: .08em; }
     .section-copy { color: var(--muted); line-height: 2.3; }
     .section-space { padding-block: 112px; }
+    .project-notice { padding: 14px 20px; margin: 0; border-bottom: 1px solid var(--line); background: var(--deep); text-align: center; color: var(--muted); font-size: 12px; line-height: 1.8; }
+    .project-notice a, .project-copy a { color: var(--gold); text-decoration: underline; text-underline-offset: .2em; }
+    .project-copy { max-width: 760px; overflow-wrap: anywhere; }
+    .project-copy h3 { margin: 32px 0 12px; font-size: 20px; line-height: 1.6; }
+    .project-copy p, .project-copy li { color: var(--muted); font-size: 15px; line-height: 2; }
+    .project-copy p + p { margin-top: 16px; }
+    .project-copy ol, .project-copy ul { padding-left: 24px; margin-top: 16px; }
+    .project-copy code { color: var(--cream); font-family: monospace; font-size: .9em; }
+    .project-links { display: flex; flex-wrap: wrap; gap: 12px 24px; }
     .small { font-size: 12px; color: var(--muted); }
     .arrow { font: 23px/1 Georgia, serif; transition: transform .25s; }
     .button { display: inline-flex; align-items: center; justify-content: center; gap: 36px; min-height: 54px; padding: 14px 27px; border: 1px solid var(--gold); background: var(--gold); color: #202218; font-size: 13px; letter-spacing: .08em; transition: background .25s, color .25s; }
@@ -343,6 +354,7 @@
   </header>
 
   <main id="main">
+    <p class="project-notice">架空のカフェのWeb制作サンプルです。実店舗の営業・予約は行っていません。 <a href="#implementation">制作解説を読む</a></p>
     <!-- 01 ヒーロー -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-art" role="img" aria-label="深い木目のテーブルに置いた、ラテアートのカップとゴールドのスプーンのイラスト">
@@ -545,10 +557,61 @@
     <section class="contact-section" id="contact" aria-labelledby="contact-title">
       <div class="wrap reveal"><p class="eyebrow">We'd love to hear from you</p><h2 class="section-title" id="contact-title">次のひと息は、KOMOREBIで。</h2><p>ご来店についてのご質問など、お気軽にお問い合わせください。</p><a class="button" href="#contact-status" data-contact>お問い合わせ <span class="arrow" aria-hidden="true">↗</span></a><p class="contact-note" id="contact-status">デモサイトのため、お問い合わせは受け付けていません。</p></div>
     </section>
+    <section class="section-space" id="implementation" aria-labelledby="implementation-title">
+      <div class="wrap project-copy">
+        <p class="eyebrow">Behind this demo</p>
+        <h2 class="section-title" id="implementation-title">単一HTMLで作る、カフェサイトの設計。</h2>
+        <p>このページは、お店の情報を見つけやすく並べるためのWeb制作サンプルです。HTML・CSS・JavaScriptと図版をひとつのファイルに収めています。カフェの紹介文、メニュー、営業時間、地図はデモ用で、実在するお店の体験談や営業情報ではありません。以下では、実装している仕組みと、別のお店に合わせる際の変更点を説明します。</p>
+        <h3>1. 来店前に必要な情報から構成する</h3>
+        <p>ヒーローで雰囲気を示した後、店舗紹介、メニュー、営業時間とアクセス、お問い合わせを並べています。ページ内リンクはセクションの<code>id</code>に対応します。見出しは<code>h1</code>から<code>h2</code>、<code>h3</code>へ階層を付け、営業時間には表の見出しセルを使っています。本文へ直接移動できるスキップリンクも、キーボードで操作する利用者のための入口です。</p>
+        <p>お店の内容へ変更するときは、見た目の文章だけでなく、ページのタイトルと説明文、画像の読み上げ用の説明、営業時間表、地図の注記も一緒に更新してください。特にこのサンプルの地図は架空の図版です。実際の場所への案内として使う場合は、正しい位置と経路へ差し替える必要があります。</p>
+        <h3>2. SVGの図版を、外部画像なしで表示する</h3>
+        <p>コーヒーカップ、クロワッサン、店内イメージはHTML内のSVGで描いています。線や形、グラデーションから構成されるため、写真ファイルの取得は不要です。共通の図形は<code>symbol</code>や<code>use</code>で再利用しています。写真のような記録ではなく、デザインの雰囲気を伝えるイラストとして使用しています。</p>
+        <p>図版を変更するときは、画面に合わせて拡縮する<code>viewBox</code>を保ち、説明が必要な図には<code>title</code>と<code>aria-labelledby</code>を付けます。文字を含むSVGは、スマートフォンで縮小したときに読めるかを確認してください。実店舗の写真へ置き換えるなら、自分に掲載権限がある画像を使い、画像サイズや説明文も調整します。</p>
+        <h3>3. スマートフォンのメニューとフォーカス</h3>
+        <p>幅760px以下では、JavaScriptがイベントを設定した後にナビを折りたたみます。ボタンの<code>aria-expanded</code>は開閉状態に合わせて切り替わります。Escapeキーで閉じた場合はボタンへフォーカスを戻し、ページ内リンクを選んだ場合は移動先へ渡します。メニューの外をクリックしたときや、PCの幅へ戻ったときも閉じます。</p>
+        <p>実装を変更したら、開く・閉じるだけでなく、Tabキーでリンクへ移動できるか、Escapeの後に操作位置が分かるか、リンクを選んだ後に非表示のナビへフォーカスが残らないかを確認します。JavaScriptを無効にした場合も、通常のナビリンクと本文を読める構成にしています。</p>
+        <h3>4. 動きを減らす設定にも対応する</h3>
+        <p>スクロール表示には<code>IntersectionObserver</code>を使い、画面に入った要素を一度だけ表示します。OSやブラウザが<code>prefers-reduced-motion: reduce</code>を示している場合は、監視による表示演出を開始しません。閲覧中にその設定が変わった場合も、対象の内容を表示したままにします。</p>
+        <p>動きの設定に応じた表示を変更するときは、アニメーションを省いた結果、文字やボタンまで消えないことが大切です。演出は情報を読む条件ではありません。通常表示、低モーション、JavaScript無効のそれぞれで本文へアクセスできるかを確認してください。</p>
+        <h3>5. お問い合わせは、送信フォームとは別の仕組み</h3>
+        <p>現在の問い合わせボタンは<code>dialog</code>でデモの案内を表示します。名前やメールアドレスを入力して送信する機能はありません。HTML内の<code>CONTACT_EMAIL</code>へ受信できる宛先を設定すると、ボタンは<code>mailto:</code>リンクになります。これは利用者のメールアプリを開く動作で、サイトがメールを配送する仕組みではありません。</p>
+        <p>予約や問い合わせを実際に受け付ける場合は、宛先を差し替えるだけで受付体制が完成するわけではありません。送信手段、受付時間、入力情報の扱い、エラー時の案内を実際の運用に合わせて用意してください。このサンプルに入力フォームがあるような説明を加えると、動作と案内が一致しなくなります。</p>
+        <h3>6. HTML変更後は、CSPを再生成する</h3>
+        <p>公開用のビルドでは、inlineのJavaScriptとCSSの内容からSHA-256を計算し、許可する内容をCSPヘッダーへ記載しています。HTMLを変更した後に古いヘッダーを使うと、変更したJSやCSSが拒否される可能性があります。<code>node scripts/build-static.mjs</code>でHTMLとヘッダーを同時に生成する必要があります。</p>
+        <p>CSPは読み込むリソースを制限する防御のひとつです。第三者サービスを追加する場合は、そのサービスへの通信とデータの扱いも確認します。ヘッダーが設定されていることだけで、すべての攻撃や広告審査への適合が保証されるわけではありません。</p>
+        <h3>実店舗用へ変更する順番</h3>
+        <ol><li>店舗情報・価格・営業時間・地図を正しい内容へ置き換え、サンプル表記との整合を確認する。</li><li>掲載権限のある図版を選び、読み上げ用の説明とページのタイトルを更新する。</li><li>連絡・予約の実際の受付方法を用意し、そのデータの扱いを説明する。</li><li>PC、スマートフォン、キーボード、低モーション、JavaScript無効時を確認する。</li><li>再ビルドし、公開先のHTTPヘッダーと主要操作を確認する。</li></ol>
+        <p><a href="https://github.com/fmfmstars-beep/Firstmake">このサンプルのソースコードと公開手順を見る</a></p>
+      </div>
+    </section>
+    <section class="section-space" id="project-about" aria-labelledby="project-about-title">
+      <div class="wrap project-copy">
+        <p class="eyebrow">About this project</p><h2 class="section-title" id="project-about-title">このサイトについて。</h2>
+        <p>Firstmakeは、カフェをテーマにしたWeb制作サンプルと、その構成・操作の解説を公開するプロジェクトです。KOMOREBIは架空の店名です。実在する店舗の公式サイト、飲食店の予約サービス、利用者の実体験に基づくレビューではありません。</p>
+        <p>公開リポジトリはGitHubの<code>fmfmstars-beep/Firstmake</code>です。サイトの不具合や改善提案、掲載内容・プライバシーに関する連絡は、<a href="https://github.com/fmfmstars-beep/Firstmake/issues/new?template=firstmake-feedback.yml">GitHubの意見受付フォーム</a>へ送れます。GitHubへのログインが必要で、投稿は公開されます。パスワード、口座情報、本人確認書類、非公開にしたい個人情報は投稿しないでください。</p>
+      </div>
+    </section>
+    <section class="section-space" id="privacy" aria-labelledby="privacy-title">
+      <div class="wrap project-copy">
+        <p class="eyebrow">Privacy</p><h2 class="section-title" id="privacy-title">プライバシーについて。</h2>
+        <p>更新日：2026年10月3日。この説明はFirstmakeの公開ページに適用されます。</p>
+        <h3>現在のページとホスティング</h3>
+        <p>このページのJavaScriptは、ナビゲーション、表示演出、お問い合わせのデモ案内に使っています。ページ独自のJavaScriptによるCookieやブラウザストレージへの保存、入力フォームの送信、広告・アクセス解析の外部スクリプト読み込みは実装していません。</p>
+        <p>ページの配信にはCloudflareを使用しています。配信やセキュリティのため、IPアドレスやリクエスト等の技術情報がホスティング事業者で取り扱われる場合があります。Cloudflareによる取り扱いは<a href="https://www.cloudflare.com/privacypolicy/">Cloudflareのプライバシーポリシー</a>をご確認ください。</p>
+        <h3>連絡と外部リンク</h3>
+        <p>お問い合わせのデモ表示は情報を送信しません。意見受付フォームのリンクを開くとGitHubへ移動し、そのサービスの規約・プライバシーの説明が適用されます。投稿内容は公開されるため、個人情報を含めずにご連絡ください。</p>
+        <h3>Google広告を導入する場合</h3>
+        <p>AdSenseによる広告掲載を準備していますが、現在このページに広告配信スクリプトはありません。サイト所有権確認用のメタタグと広告販売者情報のファイル自体は、ブラウザで広告を読み込む機能ではありません。</p>
+        <p>Google広告を導入した場合、Googleなどの第三者配信事業者はCookieを使用して、このサイトや他のサイトへの過去のアクセスに基づく広告を配信することがあります。Googleの広告Cookieにより、Googleおよびそのパートナーが利用者に応じた広告を表示できるようになります。パーソナライズド広告の設定は<a href="https://www.google.com/settings/ads">Googleの広告設定</a>で変更できます。第三者配信事業者の広告Cookieの設定については<a href="https://www.aboutads.info/choices/">AboutAdsの選択ページ</a>も参照できます。</p>
+        <p>広告の導入前に、実際の配信事業者、必要な同意取得の方法、広告コードとの動作を確認し、この説明を更新します。Googleの情報の扱いについては<a href="https://policies.google.com/technologies/ads?hl=ja">Googleの広告に関する説明</a>をご確認ください。現時点で、広告掲載・審査承認・収益の発生を示すものではありません。</p>
+      </div>
+    </section>
     <noscript><p class="no-script">JavaScriptが無効でも内容をご覧いただけます。お問い合わせはデモ表示のため受け付けていません。</p></noscript>
   </main>
 
   <footer>
+    <nav class="wrap project-links" aria-label="プロジェクト情報"><a href="#implementation">制作解説</a><a href="#project-about">このサイトについて</a><a href="#privacy">プライバシー</a></nav>
     <div class="wrap footer-top">
       <a class="brand" href="#top" aria-label="KOMOREBI トップへ"><svg class="brand-mark" viewBox="0 0 40 46" aria-hidden="true"><use href="#brand-symbol"/></svg><span><span class="brand-name">KOMOREBI</span><span class="brand-sub">COFFEE &amp; QUIET MOMENTS</span></span></a>
       <p class="footer-message">一杯から、いい一日を。</p>
