@@ -1,0 +1,4 @@
+{
+  "referrerPolicy": "strict-origin-when-cross-origin",
+  "permissionsPolicy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+}
