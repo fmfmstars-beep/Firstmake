@@ -597,8 +597,11 @@
         <p class="eyebrow">Privacy</p><h2 class="section-title" id="privacy-title">プライバシーについて。</h2>
         <p>更新日：2026年10月3日。この説明はFirstmakeの公開ページに適用されます。</p>
         <h3>現在のページとホスティング</h3>
-        <p>このページのJavaScriptは、ナビゲーション、表示演出、お問い合わせのデモ案内に使っています。ページ独自のJavaScriptによるCookieやブラウザストレージへの保存、入力フォームの送信、広告・アクセス解析の外部スクリプト読み込みは実装していません。</p>
+        <p>このページのJavaScriptは、ナビゲーション、表示演出、お問い合わせのデモ案内に使っています。ページ独自のJavaScriptによるCookieやブラウザストレージへの保存、入力フォームの送信、広告配信スクリプトの読み込みは実装していません。</p>
         <p>ページの配信にはCloudflareを使用しています。配信やセキュリティのため、IPアドレスやリクエスト等の技術情報がホスティング事業者で取り扱われる場合があります。Cloudflareによる取り扱いは<a href="https://www.cloudflare.com/privacypolicy/">Cloudflareのプライバシーポリシー</a>をご確認ください。</p>
+        <h3>訪問状況の計測</h3>
+        <p>本番ページではCloudflare Web Analyticsを使い、ページの閲覧数と表示性能を集計します。計測用Cookieやブラウザストレージは使いません。ページのURL、参照元、ブラウザ・端末の種類、表示性能等の情報がCloudflareへ送られます。名前、メールアドレス、フォーム入力を計測へ送る機能はありません。<a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analyticsの説明</a>をご確認ください。</p>
+        <p>計測は本番URLだけで有効です。追跡拒否（Do Not Track）またはGlobal Privacy Controlを示すブラウザ、動作確認用の<code>?noanalytics=1</code>を付けたURLでは計測スクリプトを読み込みません。閲覧記録は人数の証明ではなく、ボットを完全に除外できるものでもありません。</p>
         <h3>連絡と外部リンク</h3>
         <p>お問い合わせのデモ表示は情報を送信しません。意見受付フォームのリンクを開くとGitHubへ移動し、そのサービスの規約・プライバシーの説明が適用されます。投稿内容は公開されるため、個人情報を含めずにご連絡ください。</p>
         <h3>Google広告を導入する場合</h3>
@@ -719,6 +722,22 @@
       if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) contactDialog.close();
     });
     document.querySelector('#year').textContent = new Date().getFullYear();
+
+    // 本番だけで計測。プレビュー・確認作業・追跡拒否を計測しません。
+    function loadVisitAnalytics() {
+      const location = window.location;
+      const preferences = window.navigator || {};
+      if (!location || location.hostname !== 'firstmake.fmfm-stars.workers.dev') return;
+      if (/(?:^|[?&])noanalytics(?:[=&]|$)/.test(location.search)) return;
+      if (preferences.doNotTrack === '1' || preferences.globalPrivacyControl || preferences.webdriver) return;
+      const beacon = document.createElement('script');
+      beacon.defer = true;
+      beacon.src = 'https://static.cloudflareinsights.com/beacon.min.js';
+      beacon.setAttribute('data-cf-beacon', JSON.stringify({ token: '5f43e5f1dd864c018aa8585a2df700ee', spa: false }));
+      document.head.appendChild(beacon);
+    }
+    loadVisitAnalytics();
   </script>
 </body>
 </html>
+
