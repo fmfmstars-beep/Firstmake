@@ -5,7 +5,7 @@
 
 PR #1のKOMOREBI版を採用しています。ルートの `index.html` を直接ブラウザで開けます。外部画像・フォント・ライブラリは不要です。
 
-店名、営業時間、住所、メニュー、価格、地図は架空の制作サンプルです。画面でもデモであることを明記しています。実店舗に転用する際は情報を差し替えてください。`CONTACT_EMAIL` を設定するとメールアプリを起動します。このHTML自体にメール送信機能はありません。
+店名、営業時間、住所、メニュー、価格、地図は架空の制作サンプルです。画面でもデモであることを明記しています。実店舗に転用する際は情報を差し替えてください。`CONTACT_EMAIL` を設定するとメールアプリを起動します。このHTML自体にメール送信機能はありません。訪問計測には本番だけでCloudflare Web Analyticsを読み込みます。
 
 JavaScript無効時にも本文とナビを表示します。スマホのメニューは開閉・Escape・移動先へのフォーカスに対応し、低モーション設定ではアニメーションを減らします。
 
@@ -27,6 +27,14 @@ Cloudflareの本番はmainから公開します。非本番ビルドは `wrangle
 
 `node --test tests/*.test.mjs`でビルド出力と既存の操作ロジックを確認できます。操作ロジックのテストはDOM代替を使うため、公開前の実ブラウザ確認も必要です。審査申請は公開後にAdSenseの所有権確認を行ってから進めてください。記事数や文字数だけでの合格保証はありません。
 
+## 初回訪問の通知
+
+本番ホストだけでCloudflare Web Analyticsを使用します。CSPは既存のinlineハッシュを維持し、スクリプトは`https://static.cloudflareinsights.com`、計測通信は`https://cloudflareinsights.com`だけを追加許可します。Google広告の配信コードは追加していません。計測内容はページ内のプライバシー説明に記載しています。
+
+プレビュー、`?noanalytics=1`付きURL、Do Not Track、Global Privacy Control、自動ブラウザでは計測スクリプトを読み込みません。管理者の表示確認には `https://firstmake.fmfm-stars.workers.dev/?noanalytics=1` を使用してください。通常URLでの管理者アクセスは他のアクセスと区別できません。
+
+Cloudflare Web Analyticsの集計値を1時間ごとの通知タスクで確認します。Web Analytics site tagは`4a740aaa5c134cbd9a7542607959e8b1`です。本番ホスト・site tag・bot=0で絞り、最初のページ閲覧が記録されたときに一度通知します。閲覧数はユニーク人数や購入・収益の証明ではなく、計測を拒否した利用者は記録されません。タスクはWeb Analyticsの集計反映を待つため、リアルタイム通知ではありません。
+
 ## 意見の受付と修正
 
 フッターのリンクから、このリポジトリのGitHub Issueフォームへ送れます。GitHubログインが必要で、投稿は公開されます。個人情報・パスワードは投稿しないでください。フォームの題名は `[Firstmake feedback]` で始まります。
@@ -38,3 +46,4 @@ Cloudflareの本番はmainから公開します。非本番ビルドは `wrangle
 Cloudflare `workcareer` は誤ってこのFirstmakeリポジトリへ接続されていました。既存Workerを保持したまま、ビルド設定2件の `path_excludes` を `["*"]` にして自動ビルドを停止しました。正しいworkcareerのソースが確認できるまで再開しません。
 
 Firstmakeの非本番設定は `npx wrangler deploy` から `npx wrangler versions upload` に変更しました。Vercel `nayami` の接続修正はVercelへの接続後に別途確認します。
+

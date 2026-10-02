@@ -21,11 +21,16 @@ function element() {
     focus() { this.focused = true; },
   };
 }
-function setup({ reduced = false, email = '' } = {}) {
+function setup({ reduced = false, email = '', hostname = 'preview.workers.dev', search = '', preferences = {} } = {}) {
   const toggle = element(); toggle.setAttribute('aria-expanded', 'false');
   const nav = element(); const header = element(); const target = element();
   const document = element(); document.documentElement = element();
-  const window = element(); const mobile = { matches: true };
+  const appended = [];
+  document.createElement = () => element();
+  document.head = { appendChild: (node) => appended.push(node) };
+  const window = element();
+  window.location = { hostname, search }; window.navigator = preferences;
+  const mobile = { matches: true };
   const motion = element(); motion.matches = reduced;
   const contact = element(); const status = element(); const year = element();
   const dialog = element(); dialog.open = false;
@@ -47,7 +52,7 @@ function setup({ reduced = false, email = '' } = {}) {
   }
   window.IntersectionObserver = IntersectionObserver;
   runInNewContext(source.replace("const CONTACT_EMAIL = '';", `const CONTACT_EMAIL = ${JSON.stringify(email)};`), { document, window, IntersectionObserver });
-  return { toggle, nav, header, target, document, window, mobile, motion, contact, status, year, dialog, reveal, observers };
+  return { appended, toggle, nav, header, target, document, window, mobile, motion, contact, status, year, dialog, reveal, observers };
 }
 
 test('mobile navigation opens, Escape restores focus, links close and focus the target', () => {
@@ -92,4 +97,20 @@ test('scroll reveal and reduced-motion paths keep content available', () => {
   const reduced = setup({ reduced: true });
   assert.equal(reduced.observers.length, 0);
   assert.ok(reduced.reveal.every((node) => !node.classList.contains('is-ready')));
+});
+
+
+test('analytics runs only in production and respects verification and privacy exclusions', () => {
+  const production = { hostname: 'firstmake.fmfm-stars.workers.dev' };
+  const s = setup(production);
+  assert.equal(s.appended.length, 1);
+  assert.equal(s.appended[0].src, 'https://static.cloudflareinsights.com/beacon.min.js');
+  assert.equal(JSON.parse(s.appended[0].getAttribute('data-cf-beacon')).spa, false);
+  assert.equal(setup().appended.length, 0);
+  for (const search of ['?noanalytics=1', '?x=1&noanalytics=1', '?noanalytics']) {
+    assert.equal(setup({ ...production, search }).appended.length, 0);
+  }
+  for (const preferences of [{ doNotTrack: '1' }, { globalPrivacyControl: true }, { webdriver: true }]) {
+    assert.equal(setup({ ...production, preferences }).appended.length, 0);
+  }
 });

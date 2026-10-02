@@ -48,9 +48,11 @@ test('verification adds no executable ad script and preserves enforced CSP', asy
   const sha = (body) => createHash('sha256').update(body).digest('base64');
   assert.ok(headers.includes(`script-src 'sha256-${sha(html.match(/<script>([\s\S]*?)<\/script>/)[1])}'`));
   assert.ok(headers.includes(`style-src 'sha256-${sha(html.match(/<style>([\s\S]*?)<\/style>/)[1])}'`));
-  for (const directive of ['default-src', 'connect-src', 'script-src-attr', 'object-src', 'base-uri', 'form-action', 'frame-ancestors']) {
+  for (const directive of ['default-src', 'script-src-attr', 'object-src', 'base-uri', 'form-action', 'frame-ancestors']) {
     assert.ok(headers.includes(`${directive} 'none'`));
   }
+  assert.ok(headers.includes('connect-src https://cloudflareinsights.com'));
+  assert.ok(headers.includes('https://static.cloudflareinsights.com'));
   assert.equal(/<script\b[^>]*\bsrc\s*=/i.test(html), false);
   assert.equal(headers.includes("'unsafe-inline'"), false);
   assert.equal(headers.includes("'unsafe-eval'"), false);
@@ -81,3 +83,4 @@ test('Windows line endings produce matching HTML and hashes', async (t) => {
   const other = await build(t);
   assert.equal(await f.read('_headers'), await other.read('_headers'));
 });
+

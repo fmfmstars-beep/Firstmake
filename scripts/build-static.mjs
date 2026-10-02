@@ -18,7 +18,7 @@ const hashes = (tag) => [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>([\\s\\S]*
 const scriptHashes = hashes('script');
 const styleHashes = hashes('style');
 if (scriptHashes.length !== 1 || styleHashes.length !== 1) throw new Error('Expected one inline script and one inline stylesheet.');
-const csp = ["default-src 'none'", `script-src ${scriptHashes.join(' ')}`, "script-src-attr 'none'", `style-src ${styleHashes.join(' ')}`, "img-src 'self' data:", "connect-src 'none'", "object-src 'none'", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'"].join('; ');
+const csp = ["default-src 'none'", `script-src ${scriptHashes.join(' ')} https://static.cloudflareinsights.com`, "script-src-attr 'none'", `style-src ${styleHashes.join(' ')}`, "img-src 'self' data:", "connect-src https://cloudflareinsights.com", "object-src 'none'", "base-uri 'none'", "form-action 'none'", "frame-ancestors 'none'"].join('; ');
 const out = resolve(root, 'dist');
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
@@ -30,3 +30,4 @@ await writeFile(resolve(out, 'ads.txt'), `google.com, ${publisherId}, DIRECT, f0
 await writeFile(resolve(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${siteOrigin}/sitemap.xml\n`);
 await writeFile(resolve(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${siteOrigin}/</loc></url></urlset>\n`);
 console.log('Built Firstmake static assets with hashed CSP.');
+
