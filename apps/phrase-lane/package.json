@@ -1,0 +1,1 @@
+{"name":"phrase-lane","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node build.mjs","test":"node --test test/*.test.mjs","dev":"node dev.mjs"},"engines":{"node":">=22"}}

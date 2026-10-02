@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS accounts (id TEXT PRIMARY KEY, recovery_hash TEXT UNIQUE NOT NULL, created INTEGER NOT NULL, customer TEXT UNIQUE, subscription TEXT UNIQUE, status TEXT NOT NULL DEFAULT 'free', valid_until INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE IF NOT EXISTS sessions (hash TEXT PRIMARY KEY, account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE, expires INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS sessions_account ON sessions(account_id);
+CREATE TABLE IF NOT EXISTS usage (key TEXT PRIMARY KEY, amount INTEGER NOT NULL, expires INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS usage_expiry ON usage(expires);
