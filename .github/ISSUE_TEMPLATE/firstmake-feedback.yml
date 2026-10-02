@@ -1,0 +1,31 @@
+name: Firstmakeへの意見
+description: カフェのデモサイトの不具合や改善案を送る
+title: "[Firstmake feedback] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        投稿は公開されます。メールアドレス、電話番号、パスワードなどの個人情報は書かないでください。
+        対象サイト: https://firstmake.fmfm-stars.workers.dev
+  - type: dropdown
+    id: kind
+    attributes:
+      label: 意見の種類
+      options:
+        - 表示や操作の不具合
+        - 使いやすさの改善
+        - その他の提案
+    validations:
+      required: true
+  - type: textarea
+    id: feedback
+    attributes:
+      label: 気づいたこと・改善してほしいこと
+      description: 不具合の場合は、操作手順と期待した結果を書いてください。
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: 端末・ブラウザ
+      placeholder: 例：Android Chrome、Windows Edge

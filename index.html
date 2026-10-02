@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171916">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="description" content="KOMOREBI — 一杯のコーヒーと、心ほどける時間。黒・木目・ゴールドで描く、架空のカフェのデモサイトです。">
+  <title>KOMOREBI | 一杯のコーヒーと、心ほどける時間。</title>
+  <style>
+    /* ===== 編集ガイド =====
+       CSS・SVG・JavaScriptをすべてこのファイルに内包。通信・ビルド不要です。
+       店名、紹介文、メニュー、価格、営業時間、住所は架空のサンプルです。
+       実店舗用には本文とtitle/descriptionを変更し、末尾のCONTACT_EMAILを設定してください。
+       地図は外部サービスではなくイメージ図です。実店舗用に差し替えてください。
+       写真やWebフォント、外部ライブラリは読み込みません。
+    */
+
+    /* 色・余白・文字の共通設定 */
+    :root {
+      color-scheme: dark;
+      --ink: #171916;
+      --deep: #121410;
+      --panel: #1e211c;
+      --cream: #ede9dd;
+      --muted: #b5b5a7;
+      --gold: #c5aa78;
+      --line: rgba(197, 170, 120, .24);
+      --serif: "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", "Noto Serif JP", serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans CJK JP", sans-serif;
+      --wrap: 1200px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 100px; }
+    body { margin: 0; background: var(--ink); color: var(--cream); font: 16px/1.9 var(--sans); -webkit-font-smoothing: antialiased; }
+    body:has(dialog[open]) { overflow: hidden; }
+    ::selection { background: var(--gold); color: var(--deep); }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 6px; }
+    svg { display: block; width: 100%; height: auto; }
+    h1, h2, h3, p, figure { margin: 0; }
+    h1, h2, h3 { font-weight: 400; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    .wrap { width: min(var(--wrap), calc(100% - 112px)); margin-inline: auto; }
+    .serif { font-family: var(--serif); }
+    .eyebrow { color: var(--gold); font: 11px/1.5 var(--sans); letter-spacing: .25em; text-transform: uppercase; }
+    .section-title { margin: 14px 0 24px; font: 400 clamp(30px, 3.5vw, 44px)/1.6 var(--serif); letter-spacing: .08em; }
+    .section-copy { color: var(--muted); line-height: 2.3; }
+    .section-space { padding-block: 112px; }
+    .small { font-size: 12px; color: var(--muted); }
+    .arrow { font: 23px/1 Georgia, serif; transition: transform .25s; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 36px; min-height: 54px; padding: 14px 27px; border: 1px solid var(--gold); background: var(--gold); color: #202218; font-size: 13px; letter-spacing: .08em; transition: background .25s, color .25s; }
+    .button:hover { background: #dcc295; }
+    .button:hover .arrow, .text-link:hover .arrow { transform: translateX(5px); }
+    .button-outline { color: var(--cream); background: transparent; border-color: #77796c; }
+    .button-outline:hover { color: var(--deep); background: var(--cream); }
+    .text-link { display: inline-flex; align-items: center; gap: 24px; min-height: 44px; padding-block: 8px; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .skip-link { position: fixed; top: 12px; left: 16px; z-index: 100; padding: 12px 20px; background: var(--cream); color: var(--deep); transform: translateY(-170%); }
+    .skip-link:focus { transform: translateY(0); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .svg-library { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+    /* 固定ヘッダー。JSがなくてもナビゲーションは表示されます。 */
+    .site-header { position: sticky; top: 0; z-index: 20; background: rgba(23, 25, 22, .97); border-bottom: 1px solid var(--line); }
+    .header-inner { display: flex; align-items: center; justify-content: space-between; min-height: 90px; gap: 24px; }
+    .brand { display: inline-flex; align-items: center; gap: 13px; flex-shrink: 0; }
+    .brand-mark { width: 33px; color: var(--gold); }
+    .brand-name { display: block; font: 23px/1.3 Georgia, serif; letter-spacing: .17em; }
+    .brand-sub { display: block; margin-top: 4px; color: var(--gold); font-size: 8px; line-height: 1.5; letter-spacing: .24em; }
+    .site-nav { display: flex; align-items: center; gap: 32px; font-size: 12px; letter-spacing: .06em; }
+    .site-nav a { display: inline-flex; align-items: center; min-height: 44px; transition: color .2s; }
+    .site-nav a:hover { color: var(--gold); }
+    .site-nav .nav-contact { min-height: 42px; padding-inline: 20px; border: 1px solid var(--line); }
+    .nav-toggle { display: none; color: var(--cream); background: none; border: 1px solid var(--line); width: 46px; height: 44px; }
+    .nav-toggle span { display: block; width: 19px; height: 1px; margin: 6px auto; background: currentColor; transition: transform .2s; }
+    .nav-toggle[aria-expanded="true"] span:first-child { transform: translateY(3.5px) rotate(45deg); }
+    .nav-toggle[aria-expanded="true"] span:last-child { transform: translateY(-3.5px) rotate(-45deg); }
+
+    /* ヒーロー：SVGで木目、陶器、コーヒーを描画するためオフラインでも欠けません。 */
+    .hero { position: relative; isolation: isolate; overflow: hidden; }
+    .hero-main { position: relative; min-height: 660px; display: flex; align-items: center; }
+    .hero-art { position: absolute; z-index: -2; right: 0; top: 0; width: 66%; height: 100%; }
+    .hero-art svg { width: 100%; height: 100%; object-fit: cover; }
+    .hero::before { content: ""; position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, var(--ink) 8%, rgba(23,25,22,.96) 25%, rgba(23,25,22,.35) 52%, transparent 80%); pointer-events: none; }
+    .hero-content { padding-block: 72px 96px; width: 53%; }
+    .hero-kicker { display: flex; align-items: center; gap: 15px; }
+    .hero-kicker::before { content: ""; width: 32px; height: 1px; background: var(--gold); }
+    .hero h1 { margin: 32px 0 24px; font: 400 clamp(48px, 5.5vw, 76px)/1.55 var(--serif); letter-spacing: .14em; }
+    .hero-copy { color: #c7c7ba; font-size: 14px; line-height: 2.2; letter-spacing: .06em; }
+    .hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; margin-top: 34px; }
+    .hero-note { position: absolute; right: 28px; top: 46px; color: #c3b697; writing-mode: vertical-rl; letter-spacing: .3em; font-size: 9px; }
+    .scroll-cue { position: absolute; bottom: 28px; display: inline-flex; align-items: center; gap: 16px; min-height: 44px; color: var(--muted); font-size: 9px; letter-spacing: .25em; }
+    .scroll-cue::before { content: ""; height: 33px; width: 1px; background: linear-gradient(var(--gold), transparent); }
+    .hero-stamp { position: absolute; right: 8%; bottom: 46px; width: 96px; height: 96px; border: 1px solid rgba(197,170,120,.5); border-radius: 50%; display: grid; align-content: center; text-align: center; color: #d4c19b; font: 12px/1.65 Georgia, serif; letter-spacing: .13em; transform: rotate(-12deg); }
+    .hero-stamp span { font-size: 23px; font-style: italic; letter-spacing: 0; }
+    .intro-strip { background: #1b1e18; border-block: 1px solid var(--line); }
+    .intro-inner { min-height: 92px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .intro-tagline { color: #d8d3c5; font-family: var(--serif); letter-spacing: .13em; }
+    .intro-details { display: flex; align-items: center; gap: 26px; color: var(--muted); font-size: 11px; letter-spacing: .08em; }
+    .intro-details span + span { border-left: 1px solid var(--line); padding-left: 26px; }
+    .intro-details .demo-tag { color: var(--gold); font-size: 9px; letter-spacing: .14em; }
+
+    /* 店舗紹介 */
+    .story-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 9%; }
+    .story-visual { position: relative; }
+    .story-visual::before { content: ""; position: absolute; inset: 20px -20px -20px 20px; border: 1px solid var(--line); z-index: -1; }
+    .story-visual svg { aspect-ratio: 1.03; object-fit: cover; }
+    .figure-caption { display: flex; justify-content: space-between; margin-top: 14px; color: var(--muted); font-size: 9px; letter-spacing: .1em; }
+    .story-text .section-title { margin-bottom: 25px; }
+    .story-text p + p { margin-top: 16px; }
+    .story-signature { margin-top: 28px; color: var(--gold); font: italic 28px/1.5 Georgia, serif; }
+
+    /* おすすめメニュー：3点のカードと内蔵イラスト */
+    .menu-section { background: #1c1f19; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; margin-bottom: 38px; }
+    .section-heading .section-title { margin-bottom: 0; }
+    .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .menu-art { overflow: hidden; position: relative; background: #282c23; }
+    .menu-art > svg { aspect-ratio: 1.3; transition: transform .6s ease; }
+    .menu-card:hover .menu-art > svg { transform: scale(1.045); }
+    .menu-number { position: absolute; left: 16px; top: 13px; color: #e0d2b7; font: italic 16px Georgia, serif; }
+    .menu-info { padding-top: 24px; }
+    .menu-category { color: var(--gold); font-size: 9px; letter-spacing: .2em; }
+    .menu-title-row { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; column-gap: 12px; margin: 8px 0 10px; }
+    .menu-title-row h3 { font: 20px/1.6 var(--serif); }
+    .price { color: var(--gold); font: 20px/1.5 Georgia, serif; white-space: nowrap; }
+    .menu-info p { font-size: 13px; color: var(--muted); line-height: 2; }
+    .menu-footnote { margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); text-align: right; }
+
+    /* 営業時間・アクセス */
+    .visit-heading { text-align: center; margin-bottom: 48px; }
+    .visit-heading .section-title { margin-bottom: 14px; }
+    .visit-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 8%; }
+    .info-heading { display: flex; gap: 13px; align-items: center; font: 23px/1.6 var(--serif); margin-bottom: 20px; }
+    .icon { width: 22px; height: 22px; flex-shrink: 0; color: var(--gold); }
+    .hours-table { width: 100%; border-collapse: collapse; }
+    .hours-table th, .hours-table td { padding: 15px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+    .hours-table th { text-align: left; font-weight: 400; color: var(--muted); }
+    .hours-table td { text-align: right; letter-spacing: .04em; }
+    .visit-notes { margin-top: 20px; font-size: 12px; color: var(--muted); }
+    .visit-notes li { margin-top: 5px; }
+    .access-info { border-top: 1px solid var(--line); padding-top: 28px; margin-top: 32px; }
+    address { font-style: normal; color: var(--muted); font-size: 13px; line-height: 2.2; }
+    .access-route { color: var(--cream); margin-top: 10px; font-size: 13px; }
+    .map-figure { align-self: start; }
+    .map-frame { padding: 10px; background: #21251e; border: 1px solid var(--line); }
+    .map-frame svg { aspect-ratio: 1.12; }
+    .map-figure figcaption { color: var(--muted); font-size: 11px; margin-top: 12px; text-align: center; }
+
+    /* お問い合わせとフッター */
+    .contact-section { position: relative; overflow: hidden; padding-block: 76px; border-block: 1px solid var(--line); background: #25261e; text-align: center; }
+    .contact-section::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .23; background: repeating-linear-gradient(93deg, transparent 0 5px, #756445 6px, transparent 7px 15px), linear-gradient(90deg, #171a14, #4d3d28, #171a14); }
+    .contact-section .wrap { position: relative; }
+    .contact-section .section-title { margin-top: 14px; margin-bottom: 18px; }
+    .contact-section p { color: #c7c4b7; font-size: 13px; }
+    .contact-section .button { margin-top: 28px; min-width: 256px; }
+    .contact-section .contact-note { color: var(--muted); margin-top: 14px; font-size: 10px; }
+    .footer-top { padding-block: 42px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+    .footer-message { color: var(--muted); font: 13px var(--serif); letter-spacing: .08em; }
+    .footer-bottom { border-top: 1px solid var(--line); padding-block: 20px; display: flex; gap: 18px; justify-content: space-between; color: var(--muted); font-size: 12px; flex-wrap: wrap; }
+    .feedback-link { display: inline-flex; align-items: center; min-height: 44px; text-decoration: underline; text-underline-offset: 4px; font-size: 14px; }
+    .back-to-top { display: inline-flex; align-items: center; min-height: 44px; gap: 20px; font-size: 11px; }
+    dialog { color: var(--cream); background: var(--panel); border: 1px solid var(--gold); padding: 38px; width: min(480px, calc(100% - 36px)); max-height: calc(100dvh - 40px); overflow: auto; }
+    dialog::backdrop { background: rgba(9, 11, 8, .8); backdrop-filter: blur(4px); }
+    dialog h2 { font: 26px/1.6 var(--serif); margin-block: 14px 18px; }
+    dialog p { color: var(--muted); font-size: 14px; }
+    dialog .button { width: 100%; margin-top: 26px; }
+    .no-script { padding: 15px 24px; border-block: 1px solid var(--line); color: var(--muted); font-size: 13px; text-align: center; }
+
+    /* JSが有効で監視を開始できた要素だけアニメーション。未対応時も本文は表示。 */
+    .reveal { transition: opacity .75s ease, transform .75s ease; }
+    .reveal.is-ready:not(.is-visible) { opacity: 0; transform: translateY(24px); }
+
+    /* タブレット */
+    @media (max-width: 1050px) {
+      .wrap { width: calc(100% - 64px); }
+      .site-nav { gap: 19px; }
+      .brand-name { font-size: 20px; }
+      .brand-mark { width: 29px; }
+      .hero-main { min-height: 620px; }
+      .hero-content { width: 58%; }
+      .hero-art { width: 77%; right: -12%; }
+      .hero h1 { font-size: 60px; }
+      .intro-details { gap: 18px; }
+      .intro-details span + span { padding-left: 18px; }
+      .story-grid { gap: 7%; }
+      .menu-grid { gap: 22px; }
+      .menu-title-row h3 { font-size: 18px; }
+    }
+
+    /* スマートフォン。320px幅から横スクロールなしで表示。 */
+    @media (max-width: 760px) {
+      html { scroll-padding-top: 92px; }
+      .wrap { width: calc(100% - 40px); }
+      .section-space { padding-block: 72px; }
+      .header-inner { min-height: 76px; flex-wrap: wrap; gap: 0; }
+      .brand-name { font-size: 20px; }
+      .brand-sub { font-size: 7px; }
+      .brand-mark { width: 28px; }
+      .site-nav { width: 100%; justify-content: center; gap: 6px 20px; padding: 12px 0 18px; flex-wrap: wrap; }
+      .nav-enhanced .nav-toggle { display: block; }
+      .nav-enhanced .site-nav { display: none; }
+      .nav-enhanced .site-nav.is-open { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 12px 0 20px; }
+      .nav-enhanced .site-nav a { padding: 10px 12px; }
+      .nav-enhanced .site-nav .nav-contact { margin-top: 8px; justify-content: center; }
+      .hero-main { min-height: 730px; align-items: flex-start; }
+      .hero-content { width: 100%; padding-block: 49px 300px; }
+      .hero h1 { font-size: clamp(45px, 10.5vw, 65px); line-height: 1.45; margin: 24px 0 20px; }
+      .hero-copy { font-size: 12px; }
+      .hero-kicker { font-size: 9px; }
+      .hero::before { background: linear-gradient(180deg, var(--ink) 2%, rgba(23,25,22,.95) 33%, rgba(23,25,22,.1) 70%, rgba(23,25,22,.1)); }
+      .hero-art { top: auto; bottom: -75px; right: -12%; width: 110%; height: 490px; }
+      .hero-actions { margin-top: 25px; gap: 14px 22px; }
+      .hero-actions .button { min-height: 48px; padding-inline: 21px; gap: 24px; font-size: 12px; }
+      .hero-actions .text-link { font-size: 11px; gap: 15px; }
+      .hero-note { top: 52px; right: 16px; font-size: 8px; letter-spacing: .22em; }
+      .hero-stamp { width: 78px; height: 78px; right: 20px; bottom: 28px; font-size: 9px; }
+      .hero-stamp span { font-size: 20px; }
+      .scroll-cue { bottom: 18px; }
+      .intro-inner { min-height: 107px; flex-direction: column; justify-content: center; gap: 10px; }
+      .intro-tagline { font-size: 13px; }
+      .intro-details { font-size: 10px; gap: 12px; }
+      .intro-details span + span { padding-left: 12px; }
+      .intro-details .demo-tag { font-size: 8px; }
+      .story-grid { grid-template-columns: 1fr; gap: 52px; }
+      .story-visual { max-width: 500px; margin-right: 14px; }
+      .story-visual::before { inset: 14px -14px -14px 14px; }
+      .story-visual svg { aspect-ratio: 1.2; }
+      .section-title { font-size: 29px; }
+      .section-copy { font-size: 14px; }
+      .section-heading { display: block; }
+      .section-heading > p { margin-top: 16px; }
+      .menu-grid { grid-template-columns: 1fr; gap: 42px; }
+      .menu-art > svg { aspect-ratio: 1.5; }
+      .menu-info { padding-top: 18px; }
+      .menu-title-row h3 { font-size: 21px; }
+      .menu-footnote { text-align: left; }
+      .visit-heading { text-align: left; margin-bottom: 34px; }
+      .visit-grid { grid-template-columns: 1fr; gap: 34px; }
+      .contact-section { padding-block: 58px; }
+      .contact-section .section-title { font-size: 26px; }
+      .footer-top { flex-wrap: wrap; padding-block: 34px 20px; gap: 20px; }
+      .footer-message { width: 100%; order: 3; font-size: 12px; }
+      .footer-bottom { flex-direction: column; gap: 8px; }
+      dialog { padding: 28px 24px; }
+    }
+    @media (max-width: 360px) {
+      .hero-actions { gap: 14px; }
+      .hero-actions .button { padding-inline: 14px; gap: 15px; }
+      .hero-actions .text-link { gap: 9px; }
+      .intro-details { gap: 9px; font-size: 9px; }
+      .intro-details span + span { padding-left: 9px; }
+      .footer-top .brand-name { font-size: 18px; }
+    }
+    /* OSの「視差効果を減らす」を尊重し、全コンテンツを直ちに表示。 */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+      .reveal.is-ready:not(.is-visible) { opacity: 1; transform: none; }
+    }
+    @media print {
+      body { background: white; color: #222; }
+      .site-header { position: static; }
+      .nav-toggle, .hero-art, .hero-stamp, .hero-note, .scroll-cue, dialog { display: none; }
+      .hero-main { min-height: auto; }
+      .hero-content { width: 100%; padding-block: 30px; }
+      .section-space { padding-block: 30px; }
+      .reveal.is-ready:not(.is-visible) { opacity: 1; transform: none; }
+      .menu-card, .visit-grid { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">本文へスキップ</a>
+
+  <!-- 再利用するインラインSVG。すべてオリジナルの図形で外部画像は不要。 -->
+  <svg class="svg-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="porcelain" cx=".36" cy=".25" r=".8"><stop stop-color="#f2ead6"/><stop offset=".7" stop-color="#cec6af"/><stop offset="1" stop-color="#797868"/></radialGradient>
+      <radialGradient id="saucer" cx=".36" cy=".25"><stop stop-color="#b1ad97"/><stop offset=".68" stop-color="#d5ceb9"/><stop offset=".9" stop-color="#a09e87"/><stop offset="1" stop-color="#e5dcc6"/></radialGradient>
+      <radialGradient id="coffee" cx=".35" cy=".35"><stop stop-color="#d69e52"/><stop offset=".52" stop-color="#ab672c"/><stop offset=".89" stop-color="#73401d"/><stop offset="1" stop-color="#341f12"/></radialGradient>
+      <radialGradient id="foam"><stop stop-color="#fff4d6"/><stop offset="1" stop-color="#d9bd7f"/></radialGradient>
+      <linearGradient id="wood" x2=".85" y2="1"><stop stop-color="#53412c"/><stop offset=".45" stop-color="#342a1d"/><stop offset="1" stop-color="#1e2119"/></linearGradient>
+      <linearGradient id="gold-metal"><stop stop-color="#6f5834"/><stop offset=".3" stop-color="#ccb583"/><stop offset=".55" stop-color="#e0c995"/><stop offset="1" stop-color="#786340"/></linearGradient>
+      <linearGradient id="pastry" x2=".4" y2="1"><stop stop-color="#edc780"/><stop offset=".45" stop-color="#c98b42"/><stop offset="1" stop-color="#815025"/></linearGradient>
+      <linearGradient id="cake-side" x2=".1" y2="1"><stop stop-color="#e4c995"/><stop offset=".6" stop-color="#f0d8a8"/><stop offset="1" stop-color="#a9743e"/></linearGradient>
+      <pattern id="grain" width="110" height="700" patternUnits="userSpaceOnUse">
+        <path d="M10-20Q-20 130 12 270T12 540T10 780M24-30Q9 130 29 320T22 790M38-20Q65 230 43 450T38 760M50-30Q80 120 68 310T62 780M82-10Q57 170 83 320T88 720M106-20Q82 160 107 430T104 780" fill="none" stroke="#c29a62" stroke-opacity=".13"/>
+        <path d="M1 0V700M109 0V700" stroke="#100f0b" stroke-opacity=".35" stroke-width="3"/>
+      </pattern>
+      <pattern id="linen" width="5" height="5" patternUnits="userSpaceOnUse"><path d="M0 1H5M1 0V5" stroke="#e4d4af" stroke-opacity=".1" stroke-width=".7"/></pattern>
+      <filter id="shadow" x="-60%" y="-60%" width="240%" height="240%"><feDropShadow dx="12" dy="20" stdDeviation="17" flood-color="#080b07" flood-opacity=".65"/></filter>
+      <filter id="small-shadow" x="-40%" y="-40%" width="200%" height="200%"><feDropShadow dx="5" dy="9" stdDeviation="7" flood-color="#080b07" flood-opacity=".5"/></filter>
+      <symbol id="brand-symbol" viewBox="0 0 40 46">
+        <path d="M20 2 37 12v22L20 44 3 34V12Z" fill="none" stroke="currentColor" stroke-width="1"/>
+        <path d="M20 9v28M20 19l-8-5m8 13-8-5m8 1 8-5m-8 13 8-5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      </symbol>
+      <symbol id="bean" viewBox="0 0 36 50"><ellipse cx="18" cy="25" rx="15" ry="23" fill="#4c2e1b"/><ellipse cx="16" cy="21" rx="12" ry="19" fill="#704927"/><path d="M23 4C7 19 28 25 12 46" stroke="#281e13" stroke-width="3" fill="none"/><path d="M25 6C11 20 30 26 15 44" stroke="#aa7840" stroke-opacity=".5" fill="none"/></symbol>
+      <symbol id="cup" viewBox="0 0 400 400" overflow="visible">
+        <g filter="url(#shadow)">
+          <circle cx="200" cy="200" r="165" fill="url(#saucer)"/>
+          <circle cx="200" cy="200" r="148" fill="none" stroke="#7a7967" stroke-opacity=".4"/>
+          <circle cx="200" cy="200" r="128" fill="#7c7965" opacity=".5"/>
+          <path d="M298 166C362 145 373 230 310 235L299 214C337 213 337 179 301 187Z" fill="url(#porcelain)" stroke="#b3ae97" stroke-width="2"/>
+          <circle cx="196" cy="194" r="121" fill="url(#porcelain)"/>
+          <circle cx="196" cy="194" r="106" fill="#7b532e"/>
+          <circle cx="196" cy="192" r="101" fill="url(#coffee)"/>
+          <circle cx="196" cy="192" r="96" fill="none" stroke="#e6b66b" stroke-width="3" opacity=".7"/>
+          <g fill="url(#foam)" transform="rotate(-24 196 192)">
+            <path d="M197 253C174 228 137 203 142 177C145 157 168 159 196 187C222 156 247 162 250 181C253 206 218 232 197 253Z"/>
+            <path d="M196 220C158 197 148 179 158 171C170 162 186 182 196 195C208 175 228 163 236 177C244 189 218 209 196 220Z" fill="#b7803d"/>
+            <path d="M196 214C164 192 161 180 169 177C177 173 188 188 196 198C207 182 220 174 225 180C233 188 209 207 196 214Z"/>
+            <path d="M195 188C174 168 162 152 172 143C182 135 193 148 197 157C202 140 216 136 225 145C238 161 212 178 195 188Z"/>
+            <path d="M197 246Q192 199 197 155" fill="none" stroke="#fff2d1" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <path d="M101 146A107 107 0 0 1 238 96" fill="none" stroke="#fff7e7" stroke-width="3" opacity=".65"/>
+        </g>
+      </symbol>
+      <symbol id="sprig" viewBox="0 0 150 300">
+        <path d="M62 300Q85 200 66 100T76 0" fill="none" stroke="#827747" stroke-width="3"/>
+        <g fill="#626b43"><ellipse cx="54" cy="65" rx="15" ry="38" transform="rotate(-35 54 65)"/><ellipse cx="92" cy="100" rx="16" ry="39" transform="rotate(40 92 100)"/><ellipse cx="49" cy="137" rx="17" ry="43" transform="rotate(-42 49 137)"/><ellipse cx="101" cy="175" rx="16" ry="41" transform="rotate(44 101 175)"/><ellipse cx="51" cy="218" rx="17" ry="44" transform="rotate(-41 51 218)"/><ellipse cx="94" cy="253" rx="15" ry="36" transform="rotate(48 94 253)"/></g>
+        <g fill="none" stroke="#a09a67" stroke-opacity=".35"><path d="M33 39 74 101M113 72 70 127M19 111 77 171M127 148 76 203M22 192 76 251M117 229 66 281"/></g>
+      </symbol>
+    </defs>
+  </svg>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="KOMOREBI トップへ">
+        <svg class="brand-mark" viewBox="0 0 40 46" aria-hidden="true"><use href="#brand-symbol"/></svg>
+        <span><span class="brand-name">KOMOREBI</span><span class="brand-sub">COFFEE &amp; QUIET MOMENTS</span></span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="メニューを開く"><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="メインナビゲーション">
+        <a href="#about">私たちについて</a>
+        <a href="#menu">メニュー</a>
+        <a href="#visit">営業時間・アクセス</a>
+        <a class="nav-contact" href="#contact">お問い合わせ <span aria-hidden="true">&nbsp;↗</span></a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 01 ヒーロー -->
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-art" role="img" aria-label="深い木目のテーブルに置いた、ラテアートのカップとゴールドのスプーンのイラスト">
+        <svg viewBox="0 0 850 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <rect width="850" height="760" fill="url(#wood)"/>
+          <rect width="850" height="760" fill="url(#grain)"/>
+          <g transform="rotate(-17 520 405)" filter="url(#small-shadow)"><path d="M297 83 767 107 730 696 268 674Z" fill="#706a50"/><path d="M297 83 767 107 730 696 268 674Z" fill="url(#linen)"/><path d="M302 90 761 113 724 687 275 667Z" fill="none" stroke="#aaa083" stroke-opacity=".4" stroke-dasharray="2 4"/></g>
+          <use href="#cup" x="231" y="161" width="470" height="470" transform="rotate(12 466 396)"/>
+          <g transform="rotate(23 695 510)" filter="url(#small-shadow)"><ellipse cx="692" cy="376" rx="22" ry="34" fill="url(#gold-metal)"/><path d="M685 400Q686 503 685 606Q693 624 700 606L699 400Z" fill="url(#gold-metal)"/><ellipse cx="691" cy="374" rx="15" ry="25" fill="#9b8253" opacity=".6"/></g>
+          <use href="#sprig" x="10" y="451" width="205" height="410" transform="rotate(-33 110 651)"/>
+          <g filter="url(#small-shadow)"><use href="#bean" x="692" y="78" width="25" height="36" transform="rotate(-35 704 96)"/><use href="#bean" x="731" y="117" width="25" height="35" transform="rotate(20 743 134)"/><use href="#bean" x="678" y="125" width="24" height="34" transform="rotate(65 690 142)"/><use href="#bean" x="763" y="87" width="22" height="31"/></g>
+        </svg>
+      </div>
+      <div class="wrap hero-main">
+        <div class="hero-content">
+          <p class="eyebrow hero-kicker">A little pause, a richer day.</p>
+          <h1 id="hero-title">余白を、<br>味わう。</h1>
+          <p class="hero-copy">一杯のコーヒーと、心ほどける時間。<br>忙しい日々に、木漏れ日のようなひとときを。</p>
+          <div class="hero-actions">
+            <a class="button" href="#menu">メニューを見る <span class="arrow" aria-hidden="true">→</span></a>
+            <a class="text-link" href="#about">KOMOREBIについて <span class="arrow" aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+        <a class="scroll-cue" href="#about">SCROLL TO EXPLORE</a>
+      </div>
+      <span class="hero-note" aria-hidden="true">SLOW COFFEE. WARM MOMENTS.</span>
+      <div class="hero-stamp" aria-hidden="true">TAKE IT<span>slow.</span>KOMOREBI</div>
+    </section>
+
+    <div class="intro-strip">
+      <div class="wrap intro-inner">
+        <p class="intro-tagline">香りとぬくもり、その先にある時間。</p>
+        <p class="intro-details"><span>HANDCRAFTED COFFEE</span><span>HOMEMADE SWEETS</span><span class="demo-tag">DEMO SITE</span></p>
+      </div>
+    </div>
+
+    <!-- 02 店舗紹介。店内もSVGとして埋め込み。 -->
+    <section class="section-space" id="about" aria-labelledby="about-title">
+      <div class="wrap story-grid">
+        <figure class="story-visual reveal">
+          <svg viewBox="0 0 520 500" role="img" aria-labelledby="room-title" preserveAspectRatio="xMidYMid slice">
+            <title id="room-title">木のカウンターと柔らかな照明に包まれたカフェのイメージ</title>
+            <defs>
+              <linearGradient id="room-wall" x2="1" y2="1"><stop stop-color="#3c4133"/><stop offset="1" stop-color="#1c211a"/></linearGradient>
+              <linearGradient id="window-light" x2="0" y2="1"><stop stop-color="#d0caac"/><stop offset="1" stop-color="#6c8060"/></linearGradient>
+              <radialGradient id="lamp-glow"><stop stop-color="#dfbc6c" stop-opacity=".19"/><stop offset="1" stop-color="#dfbc6c" stop-opacity="0"/></radialGradient>
+            </defs>
+            <rect width="520" height="500" fill="url(#room-wall)"/>
+            <path d="M0 364 520 337V500H0Z" fill="#25271e"/>
+            <path d="m0 441 520-64m-399 123 265-159m-106 159 159-163" stroke="#55503a" stroke-opacity=".3"/>
+            <rect x="28" y="32" width="187" height="273" fill="#131a14"/>
+            <rect x="38" y="41" width="167" height="252" fill="url(#window-light)"/>
+            <g fill="#3b5534" opacity=".5"><ellipse cx="74" cy="66" rx="69" ry="100"/><ellipse cx="182" cy="102" rx="55" ry="83"/><ellipse cx="95" cy="193" rx="45" ry="67"/></g>
+            <path d="M47 287 83 35M92 216 174 46M180 285 143 122" stroke="#405034" stroke-width="8" opacity=".6"/>
+            <path d="M121 35V300M31 166H211" stroke="#1f281e" stroke-width="9"/>
+            <path d="M28 304H215L234 316H19Z" fill="#8d7751"/>
+            <path d="M43 314 210 315 337 483 93 499Z" fill="#ccb46c" opacity=".06"/>
+            <rect x="278" y="156" width="226" height="8" fill="#967b4c"/>
+            <rect x="278" y="166" width="226" height="9" fill="#171c15" opacity=".6"/>
+            <g fill="#bfb69a"><path d="M305 127h22v28h-22Z"/><path d="M310 119h12v8h-12Z"/><path d="M340 133h25v22h-25Z"/></g>
+            <g fill="#514431"><rect x="391" y="112" width="28" height="43" rx="4"/><rect x="432" y="115" width="25" height="40" rx="4"/></g>
+            <path d="M390 121h29m12 1h26" stroke="#b69e68" stroke-width="3"/>
+            <circle cx="368" cy="113" r="99" fill="url(#lamp-glow)"/>
+            <path d="M368 0V70" stroke="#171c15" stroke-width="3"/>
+            <path d="M342 96Q346 67 368 67T394 96Z" fill="#a08958"/>
+            <ellipse cx="368" cy="96" rx="26" ry="5" fill="#edcf84"/>
+            <rect x="291" y="224" width="76" height="49" rx="3" fill="#363d31" stroke="#71725c"/>
+            <rect x="299" y="230" width="58" height="15" fill="#161c15"/>
+            <path d="M307 245v10m23-10v10M299 268h59" stroke="#b5ac89" stroke-width="3"/>
+            <path d="M308 259h15l-2 9h-10Zm22 0h15l-2 9h-10Z" fill="#c8c1a5"/>
+            <path d="M238 283 520 269V307L238 323Z" fill="#94764a"/>
+            <path d="M245 319 520 304V406L245 440Z" fill="#463825"/>
+            <path d="M257 327 520 310V399L257 425Z" fill="url(#grain)"/>
+            <path d="m266 436-12 59m108-70 3 67m89-79 16 69" stroke="#10170f" stroke-width="8"/>
+            <g fill="#5e4b2f" stroke="#887047"><ellipse cx="272" cy="394" rx="38" ry="13"/><ellipse cx="411" cy="377" rx="37" ry="12"/></g>
+            <g stroke="#141a12" stroke-width="7"><path d="m244 399-13 91m68-91 11 87m74-104-9 86m63-89 12 81"/></g>
+            <path d="M68 442H99L94 490H74Z" fill="#8a7b55"/>
+            <use href="#sprig" x="29" y="308" width="98" height="158"/>
+            <path d="M471 240h25l-4 30h-17Z" fill="#a19269"/>
+            <use href="#sprig" x="450" y="179" width="63" height="75"/>
+          </svg>
+          <figcaption class="figure-caption"><span>A PLACE TO SLOW DOWN</span><span>店内イメージ</span></figcaption>
+        </figure>
+        <div class="story-text reveal">
+          <p class="eyebrow">01 / Our story</p>
+          <h2 class="section-title" id="about-title">何もしない時間も、<br>豊かであるように。</h2>
+          <p class="section-copy">扉を開けると、焙煎の香りと木のぬくもり。<br>ここは、日常の歩幅を少しだけゆるめる場所。</p>
+          <p class="section-copy">丁寧に淹れたコーヒーと、素朴な甘さのお菓子。<br>ひとりで本をめくる午後も、大切な人と語らう日も。<br>KOMOREBIは、あなたの余白に寄り添います。</p>
+          <div class="story-signature" aria-hidden="true">Good coffee. Gentle days.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 おすすめメニュー。価格・内容はサンプル。 -->
+    <section class="section-space menu-section" id="menu" aria-labelledby="menu-title">
+      <div class="wrap">
+        <div class="section-heading reveal">
+          <div><p class="eyebrow">02 / Our favorites</p><h2 class="section-title" id="menu-title">ひと息に、ひと品。</h2></div>
+          <p class="small">コーヒーの香りに、ささやかなご褒美を。</p>
+        </div>
+        <div class="menu-grid">
+          <article class="menu-card reveal">
+            <div class="menu-art">
+              <svg viewBox="0 0 440 340" role="img" aria-labelledby="latte-title" preserveAspectRatio="xMidYMid slice">
+                <title id="latte-title">陶器のカップに注がれたカフェラテのイラスト</title>
+                <rect width="440" height="340" fill="#373729"/>
+                <rect width="440" height="340" fill="url(#grain)"/>
+                <path d="m301-30 160 60-40 331-199-62Z" fill="#767057" opacity=".7"/>
+                <path d="m301-30 160 60-40 331-199-62Z" fill="url(#linen)"/>
+                <use href="#cup" x="49" y="5" width="330" height="330" transform="rotate(-25 220 170)"/>
+                <use href="#bean" x="36" y="259" width="18" height="27" transform="rotate(-30 45 270)"/>
+                <use href="#bean" x="61" y="279" width="18" height="27" transform="rotate(35 70 289)"/>
+              </svg>
+              <span class="menu-number" aria-hidden="true">01</span>
+            </div>
+            <div class="menu-info"><span class="menu-category">SIGNATURE COFFEE</span><div class="menu-title-row"><h3>こもれびラテ</h3><span class="price">¥650</span></div><p>深煎りのコクに、きめ細やかなミルク。<br>ほっとする、まろやかな一杯。</p></div>
+          </article>
+          <article class="menu-card reveal">
+            <div class="menu-art">
+              <svg viewBox="0 0 440 340" role="img" aria-labelledby="cake-title" preserveAspectRatio="xMidYMid slice">
+                <title id="cake-title">黒いプレートに盛り付けたバスクチーズケーキのイラスト</title>
+                <rect width="440" height="340" fill="#3e3b2e"/><rect width="440" height="340" fill="url(#linen)"/>
+                <ellipse cx="230" cy="196" rx="163" ry="103" fill="#151b15" filter="url(#small-shadow)"/>
+                <ellipse cx="230" cy="190" rx="144" ry="87" fill="#252b21" stroke="#4f5545"/>
+                <g filter="url(#small-shadow)"><path d="m144 158 162 8-65 90-97-39Z" fill="url(#cake-side)"/><path d="m241 199 65-86v53l-65 90Z" fill="#ccb17f"/><path d="M144 158Q159 90 223 83L306 113 241 199Z" fill="#966038"/><path d="M150 155Q166 99 222 90l76 27-59 73Z" fill="#6c3e24"/><path d="M160 143Q178 107 218 101l55 19-39 57Z" fill="#a26b39" opacity=".7"/><path d="m145 210 96 39 65-89v9l-65 91-96-39Z" fill="#8a5b31"/></g>
+                <g fill="#e9dcc0" opacity=".65"><circle cx="167" cy="240" r="2"/><circle cx="177" cy="248" r="1.4"/><circle cx="283" cy="232" r="2.4"/><circle cx="292" cy="225" r="1.3"/></g>
+                <path d="m325 71-16 81m20-79-16 79m20-77-16 79m-8-10 10 2-28 137" stroke="url(#gold-metal)" stroke-width="3" fill="none"/>
+                <g fill="#7d8a50"><ellipse cx="183" cy="103" rx="8" ry="18" transform="rotate(-45 183 103)"/><ellipse cx="199" cy="100" rx="8" ry="18" transform="rotate(30 199 100)"/></g>
+              </svg>
+              <span class="menu-number" aria-hidden="true">02</span>
+            </div>
+            <div class="menu-info"><span class="menu-category">HOMEMADE SWEETS</span><div class="menu-title-row"><h3>バスクチーズケーキ</h3><span class="price">¥720</span></div><p>香ばしい焼き目と、とろける口どけ。<br>コーヒーと楽しむ、濃厚なひと皿。</p></div>
+          </article>
+          <article class="menu-card reveal">
+            <div class="menu-art">
+              <svg viewBox="0 0 440 340" role="img" aria-labelledby="pastry-title" preserveAspectRatio="xMidYMid slice">
+                <title id="pastry-title">木のボードにのせた焼きたてクロワッサンのイラスト</title>
+                <rect width="440" height="340" fill="#30362a"/><rect width="440" height="340" fill="url(#linen)"/>
+                <g transform="rotate(-12 220 180)" filter="url(#small-shadow)"><rect x="65" y="64" width="310" height="220" rx="64" fill="#806440"/><rect x="65" y="64" width="310" height="220" rx="64" fill="url(#grain)"/><path d="M70 176H370M80 196H361M87 102H354" stroke="#c19b63" stroke-opacity=".16"/></g>
+                <g filter="url(#small-shadow)">
+                  <path d="M96 205Q77 147 145 101Q211 58 284 103Q350 144 333 206L305 229Q302 172 267 151Q214 119 165 154Q130 181 128 233Z" fill="url(#pastry)"/>
+                  <path d="M99 192Q88 154 127 127L153 157 128 215ZM129 124Q152 98 173 96L184 140 154 164ZM178 94Q207 80 232 93L224 137 185 145ZM238 93Q267 91 289 114L264 153 227 139ZM295 121Q324 139 329 168L294 186 266 155ZM331 174Q343 200 311 222L295 185Z" fill="url(#pastry)" stroke="#98602e" stroke-width="2"/>
+                  <g fill="none" stroke="#f0cf89" stroke-width="2" opacity=".6"><path d="m139 117 25 31m-15-38 25 31m15-42 8 37m3-40 5 36m39-32-8 33m19-29-11 32m35-14-18 26m26-18-18 26m40 6-24 13m28-3-22 12"/></g>
+                </g>
+                <g fill="#c39453"><path d="m162 255 5-4 5 7Z"/><path d="m180 261 6 3-4 4Z"/><circle cx="287" cy="245" r="3"/><circle cx="153" cy="244" r="2"/></g>
+                <use href="#sprig" x="329" y="227" width="83" height="153" transform="rotate(35 367 285)"/>
+              </svg>
+              <span class="menu-number" aria-hidden="true">03</span>
+            </div>
+            <div class="menu-info"><span class="menu-category">FRESHLY BAKED</span><div class="menu-title-row"><h3>バタークロワッサン</h3><span class="price">¥420</span></div><p>さくりとほどける、幾重もの層。<br>バターの香りが広がる、朝の定番。</p></div>
+          </article>
+        </div>
+        <p class="menu-footnote">メニュー・価格はサンプルです。価格は税込表示の想定です。</p>
+      </div>
+    </section>
+
+    <!-- 04 営業時間・アクセス。実店舗の情報ではありません。 -->
+    <section class="section-space" id="visit" aria-labelledby="visit-title">
+      <div class="wrap">
+        <div class="visit-heading reveal"><p class="eyebrow">03 / Visit us</p><h2 class="section-title" id="visit-title">あなたの、いつもの場所に。</h2><p class="small">営業時間・所在地はすべてサンプルです。</p></div>
+        <div class="visit-grid">
+          <div class="reveal">
+            <h3 class="info-heading"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor"/><path d="M12 6v6l4 2" fill="none" stroke="currentColor"/></svg>営業時間</h3>
+            <table class="hours-table"><caption class="sr-only">営業時間のサンプル</caption><tbody><tr><th scope="row">月・火・木・金</th><td>10:00 — 19:00</td></tr><tr><th scope="row">土・日・祝</th><td>09:00 — 19:00</td></tr><tr><th scope="row">水曜日</th><td>定休日</td></tr></tbody></table>
+            <ul class="visit-notes"><li>ラストオーダーは閉店の30分前です。</li><li>祝日の営業・臨時休業は事前にご確認ください。</li></ul>
+            <div class="access-info" id="access">
+              <h3 class="info-heading"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z" fill="none" stroke="currentColor"/><circle cx="12" cy="10" r="2.5" fill="none" stroke="currentColor"/></svg>アクセス</h3>
+              <address>〒000-0000<br>東京都〇〇区〇〇 1-2-3<br>KOMOREBIビル 1F（架空の住所）</address>
+              <p class="access-route">〇〇駅 東口より徒歩5分 <span class="small">／ サンプル</span></p>
+            </div>
+          </div>
+          <figure class="map-figure reveal">
+            <div class="map-frame">
+              <svg viewBox="0 0 530 465" role="img" aria-labelledby="map-title map-desc">
+                <title id="map-title">KOMOREBIのアクセスイメージ図</title><desc id="map-desc">架空の駅の東口から並木通りを進み、公園の隣にあるカフェへ向かうサンプル地図です。実際の道案内には使用できません。</desc>
+                <rect width="530" height="465" fill="#272d23"/>
+                <g fill="#333b2c"><rect x="28" y="28" width="142" height="112"/><rect x="199" y="28" width="94" height="112"/><rect x="324" y="28" width="177" height="112"/><rect x="28" y="174" width="143" height="115"/><rect x="325" y="177" width="176" height="111"/><rect x="28" y="325" width="142" height="109"/><rect x="200" y="325" width="95" height="109"/><rect x="325" y="325" width="176" height="109"/></g>
+                <g stroke="#616852" fill="none"><path d="M185 0V465M309 0V465M0 157H530M0 307H530" stroke-width="14"/><path d="M185 0V465M309 0V465M0 157H530M0 307H530" stroke="#797d65" stroke-width="1"/></g>
+                <rect x="344" y="186" width="138" height="88" rx="7" fill="#43503a"/>
+                <g fill="#62734a"><circle cx="360" cy="201" r="9"/><circle cx="386" cy="204" r="10"/><circle cx="414" cy="199" r="8"/><circle cx="455" cy="201" r="11"/><circle cx="359" cy="258" r="8"/><circle cx="461" cy="257" r="9"/></g>
+                <g stroke="#b4aa7f" stroke-width="1.5"><path d="M0 390H140M0 399H140"/><path d="M10 386v17m12-17v17m12-17v17m12-17v17m12-17v17m12-17v17m12-17v17m12-17v17m12-17v17m12-17v17"/></g>
+                <rect x="71" y="371" width="88" height="46" rx="3" fill="#777a60"/>
+                <path d="M159 389h26v-82h124v-65" fill="none" stroke="#d4b675" stroke-width="3" stroke-dasharray="5 6"/>
+                <circle cx="159" cy="389" r="4" fill="#d4b675"/>
+                <path d="M309 242c-8-12-19-22-19-35a19 19 0 1 1 38 0c0 13-11 23-19 35Z" fill="#c5aa78"/><circle cx="309" cy="207" r="6" fill="#272d23"/>
+                <g fill="#d8d5bf" font-family="sans-serif" font-size="12"><text x="115" y="399" text-anchor="middle">〇〇駅</text><text x="410" y="235" text-anchor="middle">公園</text><text x="211" y="380">東口</text><text x="228" y="286">徒歩5分</text></g>
+                <text x="295" y="178" text-anchor="middle" fill="#e0c58f" font-family="Georgia, serif" font-size="19" letter-spacing="2">KOMOREBI</text>
+                <text x="247" y="238" fill="#b9bca4" font-family="sans-serif" font-size="11" writing-mode="tb">並木通り</text>
+                <path d="m473 357 7-15 7 15-7-4Z" fill="#b5b99e"/><text x="480" y="334" text-anchor="middle" fill="#b5b99e" font-family="Georgia, serif" font-size="12">N</text>
+                <text x="266" y="452" text-anchor="middle" fill="#a8ad97" font-family="sans-serif" font-size="9" letter-spacing="2">ILLUSTRATIVE MAP — NOT TO SCALE</text>
+              </svg>
+            </div>
+            <figcaption>アクセスマップはイメージです。実在の場所を示すものではありません。</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 お問い合わせ。未設定時にはデモ案内、設定後はメールアプリを開きます。 -->
+    <section class="contact-section" id="contact" aria-labelledby="contact-title">
+      <div class="wrap reveal"><p class="eyebrow">We'd love to hear from you</p><h2 class="section-title" id="contact-title">次のひと息は、KOMOREBIで。</h2><p>ご来店についてのご質問など、お気軽にお問い合わせください。</p><a class="button" href="#contact-status" data-contact>お問い合わせ <span class="arrow" aria-hidden="true">↗</span></a><p class="contact-note" id="contact-status">デモサイトのため、お問い合わせは受け付けていません。</p></div>
+    </section>
+    <noscript><p class="no-script">JavaScriptが無効でも内容をご覧いただけます。お問い合わせはデモ表示のため受け付けていません。</p></noscript>
+  </main>
+
+  <footer>
+    <div class="wrap footer-top">
+      <a class="brand" href="#top" aria-label="KOMOREBI トップへ"><svg class="brand-mark" viewBox="0 0 40 46" aria-hidden="true"><use href="#brand-symbol"/></svg><span><span class="brand-name">KOMOREBI</span><span class="brand-sub">COFFEE &amp; QUIET MOMENTS</span></span></a>
+      <p class="footer-message">一杯から、いい一日を。</p>
+      <a class="back-to-top" href="#top">PAGE TOP <span aria-hidden="true">↑</span></a>
+    </div>
+    <div class="wrap footer-bottom"><p>© <span id="year">2026</span> KOMOREBI. Demo website.</p><p>架空のカフェの制作サンプルです。店名・店舗情報・メニューはデモ用です。</p><a class="feedback-link" href="https://github.com/fmfmstars-beep/Firstmake/issues/new?template=firstmake-feedback.yml">不具合・改善の意見を送る（GitHubログインが必要・投稿は公開）</a></div>
+  </footer>
+
+  <!-- ネイティブdialogでフォーカス制御・Escapeキー・読み上げに対応。 -->
+  <dialog id="contact-dialog" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+    <p class="eyebrow">KOMOREBI / Contact</p><h2 id="dialog-title">お問い合わせについて</h2><p id="dialog-description">ご覧いただきありがとうございます。こちらは架空のカフェのデモサイトです。現在、お問い合わせやご予約は受け付けていません。</p><form method="dialog"><button class="button" type="submit" autofocus>閉じる <span aria-hidden="true">×</span></button></form>
+  </dialog>
+
+  <script>
+    'use strict';
+
+    /* ===== 公開前の設定 =====
+       実在し、受信できる店舗メールアドレスに変更するとお問い合わせボタンが
+       mailtoリンクになります。未設定のままでもデモとして正常に動作します。
+       mailtoはメールアプリを起動する仕組みで、このHTML自体は送信しません。
+       設定例（例示用のドメイン）：const CONTACT_EMAIL = 'hello@example.com';
+    */
+    const CONTACT_EMAIL = '';
+
+    // スマートフォンのメニュー。リンク選択・外側クリック・Escapeで閉じます。
+    const toggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('#site-nav');
+    const header = document.querySelector('.site-header');
+    const mobileQuery = window.matchMedia('(max-width: 760px)');
+    function setMenu(open, restoreFocus = false) {
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+      nav.classList.toggle('is-open', open);
+      if (restoreFocus) toggle.focus();
+    }
+    toggle.addEventListener('click', () => setMenu(toggle.getAttribute('aria-expanded') !== 'true'));
+    nav.addEventListener('click', (event) => {
+      const link = event.target.closest('a');
+      if (!link || !mobileQuery.matches) return;
+      setMenu(false);
+      // 非表示になったナビ内にキーボードフォーカスを残さず、移動先へ渡す。
+      const target = document.querySelector(link.getAttribute('href'));
+      if (target) {
+        target.setAttribute('tabindex', '-1');
+        target.focus({ preventScroll: true });
+        target.addEventListener('blur', () => target.removeAttribute('tabindex'), { once: true });
+      }
+    });
+    document.addEventListener('click', (event) => { if (!header.contains(event.target)) setMenu(false); });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') setMenu(false, true);
+    });
+    header.addEventListener('focusout', (event) => {
+      if (event.relatedTarget && !header.contains(event.relatedTarget)) setMenu(false);
+    });
+    window.addEventListener('resize', () => { if (!mobileQuery.matches) setMenu(false); }, { passive: true });
+    // イベント設定後に折りたたみを有効化するので、JS無効時もリンクを利用可能。
+    document.documentElement.classList.add('nav-enhanced');
+
+    // 画面に入った要素を一度だけフェード表示。動きを減らす設定時は監視しません。
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const revealElements = document.querySelectorAll('.reveal');
+    let revealObserver;
+    if ('IntersectionObserver' in window && !motionQuery.matches) {
+      revealObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.08 });
+      revealElements.forEach((element) => {
+        revealObserver.observe(element);
+        element.classList.add('is-ready');
+      });
+    }
+    // 閲覧中にOSの設定を変更しても、コンテンツが隠れたままにならないようにする。
+    if (motionQuery.addEventListener) motionQuery.addEventListener('change', (event) => {
+      if (event.matches) {
+        if (revealObserver) revealObserver.disconnect();
+        revealElements.forEach((element) => element.classList.add('is-visible'));
+      }
+    });
+
+    // デモの案内、またはメールアプリへ接続。送信したように見せる処理は行いません。
+    const contactDialog = document.querySelector('#contact-dialog');
+    const contactStatus = document.querySelector('#contact-status');
+    document.querySelectorAll('[data-contact]').forEach((link) => {
+      if (CONTACT_EMAIL.trim()) {
+        link.href = 'mailto:' + encodeURIComponent(CONTACT_EMAIL.trim()).replace(/%40/g, '@') + '?subject=' + encodeURIComponent('KOMOREBIへのお問い合わせ');
+        contactStatus.textContent = 'メールアプリが開きます。宛先：' + CONTACT_EMAIL.trim();
+      } else {
+        link.addEventListener('click', (event) => {
+          // 古いブラウザでは、通常のページ内リンクでデモ案内へ移動。
+          if (typeof contactDialog.showModal !== 'function') return;
+          event.preventDefault();
+          contactDialog.showModal();
+        });
+      }
+    });
+    contactDialog.addEventListener('click', (event) => {
+      if (event.target !== contactDialog) return;
+      const bounds = contactDialog.getBoundingClientRect();
+      if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) contactDialog.close();
+    });
+    document.querySelector('#year').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
