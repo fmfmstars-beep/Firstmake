@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS stripe_events (id TEXT PRIMARY KEY, processed INTEGER NOT NULL);

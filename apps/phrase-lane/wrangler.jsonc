@@ -5,7 +5,7 @@
   "workers_dev": true,
   "ai": {"binding":"AI"},
   "d1_databases": [{"binding":"DB","database_name":"phrase-lane-production","database_id":"e7763960-50be-4651-b160-3f469d03c867"}],
-  "vars": {"DAILY_TRANSLATION_CAP":"200","BILLING_ENABLED":"false","LEGAL_READY":"false","BILLING_TESTED":"false","CONTACT_EMAIL":"fmfm.stars@gmail.com"},
+  "vars": {"DAILY_TRANSLATION_CAP":"200","BILLING_MODE":"live","BILLING_ENABLED":"false","LEGAL_READY":"false","BILLING_TESTED":"false","CONTACT_EMAIL":"fmfm.stars@gmail.com"},
   "triggers": {"crons":["17 0 * * *"]},
   "observability": {"enabled":false}
 }
