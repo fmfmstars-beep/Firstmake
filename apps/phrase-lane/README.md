@@ -2,8 +2,9 @@
 
 International text translation, browser voice input and speech playback, local subtitle drafts, and six original English blog articles.
 
-Live: https://phrase-lane.fmfm-stars.workers.dev
-Blog: https://phrase-lane.fmfm-stars.workers.dev/blog
+Live: https://phrase-lane-fmfm-stars.pages.dev
+Application Worker: https://phrase-lane.fmfm-stars.workers.dev
+Blog: https://phrase-lane-fmfm-stars.pages.dev/blog
 
 ## Develop
 
@@ -62,3 +63,11 @@ npx wrangler deploy
 The production configuration sets BILLING_MODE=live but leaves billing disabled. Do not reuse the production database for sandbox testing. Webhooks retrieve the current subscription, validate its mode, owner and configured price, and commit the account update and completed event ID in one D1 transaction. An invoice arriving before checkout/subscription events resolves its owner from Stripe subscription metadata. A missing local account, Stripe error or database write failure leaves the event retryable. Non-subscription invoices are ignored.
 
 The Node suite uses mocked Stripe responses; it does not prove real sandbox or live checkout. Before enabling billing, test the actual separate sandbox Worker: create/restore an account, start Checkout, complete a test payment, verify webhook-granted Pro without relying on the success page, manage/cancel through the portal, simulate renewal failure, resend an event and confirm duplicate handling. Check USD 9/month price, seller disclosures and global translation capacity. Keep BILLING_TESTED=false until that flow passes, and BILLING_ENABLED=false until all launch conditions are met.
+
+## Advertising publication — 3 October 2026
+
+The public Pages project `phrase-lane-fmfm-stars` forwards requests through its ORIGIN service binding to the existing `phrase-lane` Worker. Original URL, Origin and cookies are forwarded so CSRF checks and account handling remain in the application. API quotas, D1 and secrets remain in that Worker; the Pages project does not copy them. Accounts use host-only cookies, so existing visitors sign in again on the new address.
+
+`pages/_worker.js` supplies the verified AdSense publisher metadata and ads.txt, updates public HTML canonical URLs, and preserves the upstream security headers. It loads no advertising script. AdSense ownership verification passed and site review was requested; the observed status was preparing / awaiting review. PocketMath was also preparing, with ads.txt authorized. Review is not approval or earned revenue.
+
+Deploy the Pages entry with `npx wrangler pages deploy pages --project-name phrase-lane-fmfm-stars --branch main --config wrangler.pages.jsonc`. The production project must bind ORIGIN to phrase-lane. Before actual ad serving, update privacy disclosures, configure the required regional consent flow and verify the ad CSP separately.
