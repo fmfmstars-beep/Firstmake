@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>JSONWorkbench — Format, validate and inspect JSON privately</title>
+  <meta name="description" content="Format or minify JSON, validate duplicate keys, sort nested object keys and inspect structure. A free browser-local tool with precision safeguards.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://json-workbench-fmfm-stars.pages.dev/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="site-header"><div class="wrap header-inner"><a class="brand" href="/" aria-label="JSONWorkbench home"><span class="brand-mark" aria-hidden="true">{ }</span>JSONWorkbench</a><nav aria-label="Main navigation"><a href="/guide.html">JSON guide</a><a href="/about.html">About</a></nav></div></header>
+  <main class="wrap">
+    <section class="hero"><div><p class="eyebrow">A LITTLE ORDER FOR YOUR DATA</p><h1>Readable JSON.<br><span>A clearer next step.</span></h1><p class="intro">Format, validate and inspect JSON without sending your document to a server. Catch duplicate keys and protect large identifiers before they cause trouble.</p></div><div class="hero-note"><span class="status-dot" aria-hidden="true"></span><strong>Stays in your browser</strong><p>No sign-in, no data upload.<br>Up to 2 MiB of UTF-8 text.</p></div></section>
+    <section class="workbench" aria-labelledby="workbench-title">
+      <div class="workbench-bar"><h2 id="workbench-title">Your JSON workbench</h2><div class="bar-actions"><button id="example" class="text-button" type="button">Load example</button><button id="reset" class="text-button" type="button">Reset</button></div></div>
+      <div class="editors">
+        <div class="editor-panel"><div class="editor-heading"><label for="input">JSON input</label><span id="input-size">0 bytes</span></div><textarea id="input" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder='Paste JSON here, for example: {"message": "Hello", "ready": true}' aria-describedby="input-help"></textarea><div class="editor-foot"><label class="file-label" for="file">Open a .json file</label><input id="file" type="file" accept=".json,application/json,text/plain"><p id="input-help">Only standard JSON. Comments and trailing commas are not supported.</p></div></div>
+        <div class="editor-panel"><div class="editor-heading"><label for="output">JSON output</label><span id="output-size">Ready when you are</span></div><textarea id="output" readonly spellcheck="false" placeholder="Your formatted or minified JSON will appear here." aria-describedby="output-help"></textarea><div class="editor-foot output-actions"><button id="copy" class="secondary-button" disabled type="button">Copy output</button><button id="download" class="secondary-button" disabled type="button">Download JSON</button><p id="output-help">Output is generated only after successful validation.</p></div></div>
+      </div>
+      <div class="controls"><div class="options"><label for="indent">Indentation<select id="indent"><option value="2">2 spaces</option><option value="4">4 spaces</option><option value="tab">Tabs</option></select></label><label class="checkbox-label"><input id="sort" type="checkbox">Sort object keys recursively</label></div><div class="main-actions"><button id="validate" class="secondary-button" type="button">Validate only</button><button id="minify" class="secondary-button" type="button">Minify</button><button id="format" class="primary-button" type="button">Format JSON <span aria-hidden="true">↗</span></button></div></div>
+      <p id="status" class="feedback" role="status" aria-live="polite">Paste a document or load the example to begin.</p>
+    </section>
+    <section id="summary-section" class="summary-section" aria-labelledby="summary-title" hidden><div class="section-heading"><h2 id="summary-title">A quick look inside</h2><p>Root depth is 0. Keys are counted separately from values.</p></div><dl id="summary" class="summary-grid"></dl></section>
+    <section class="feature-grid" aria-label="How the tool works"><article><span class="feature-number">01</span><h2>Make a response readable</h2><p>Choose two spaces, four spaces or tabs. Minify removes unnecessary whitespace while keeping your array order.</p></article><article><span class="feature-number">02</span><h2>Catch ambiguous data</h2><p>Duplicate object keys are rejected, including escaped equivalents. Large numbers need to be strings before you proceed.</p></article><article><span class="feature-number">03</span><h2>Compare with confidence</h2><p>Sort keys in every object for a cleaner comparison. Numeric spellings are preserved; this is formatting, not a canonical signature tool.</p></article></section>
+    <section class="guide-callout"><div><p class="eyebrow">UNDERSTAND WHAT CHANGED</p><h2>Why did my JSON fail validation?</h2><p>Find practical examples for quoted keys, trailing commas, duplicate names and large IDs in the JSON guide.</p></div><a class="secondary-button" href="/guide.html">Read the guide <span aria-hidden="true">→</span></a></section>
+    <section class="faq" aria-labelledby="faq-title"><h2 id="faq-title">Before you paste</h2><details><summary>Does my JSON leave this device?</summary><p>The tool reads and transforms the text in your browser. It does not upload JSON to our server, use analytics or save your document in browser storage. Avoid sensitive data on shared devices, and remember that your browser, clipboard and operating system are outside this tool’s control.</p></details><details><summary>What does the large-number safeguard do?</summary><p>Numeric values outside ±9,007,199,254,740,991 are rejected. Put account IDs, order IDs and other large identifiers inside double quotes. Numeric tokens within the limit retain their original decimal or exponent spelling in the output.</p></details><details><summary>Can I use comments or trailing commas?</summary><p>No. This tool accepts standard JSON, which requires double-quoted strings and keys. JavaScript object literals, JSON5 and JSON with comments need to be converted first.</p></details><details><summary>Are files saved automatically?</summary><p>No. Download creates a new file on your device when you ask. Your input file is never overwritten. Reloading or leaving the page can clear your work.</p></details></section>
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><a class="brand" href="/">JSONWorkbench</a><p>A free, browser-local tool by Fmfm Stars.</p><nav aria-label="Footer navigation"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/contact.html">Contact</a></nav></div></footer>
+</body>
+</html>
