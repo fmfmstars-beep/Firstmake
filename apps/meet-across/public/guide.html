@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Find a Meeting Time Across Time Zones | MeetAcross</title>
+  <meta name="description" content="Plan a cross-time-zone meeting using the actual date, local working hours, full meeting duration, and daylight saving changes. Share a plan or export an ICS file.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://meet-across-fmfm-stars.pages.dev/guide.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><a class="brand" href="/">MeetAcross</a><nav aria-label="Main navigation"><a href="/guide.html" aria-current="page">Guide</a><a href="/tokyo-london-new-york.html">Worked example</a><a href="/about.html">About</a></nav></header>
+  <main id="main" class="prose wrap">
+    <p class="eyebrow">Practical scheduling guide</p>
+    <h1>Find a meeting time people can actually attend</h1>
+    <p class="lead">A city-to-city time conversion is only the start. A useful meeting plan also checks the local date, each person's working hours, and the whole meeting—not just its first minute.</p>
+
+    <h2>Start with the meeting date</h2>
+    <p>Choose a reference city and the date you want to explore there. The reference city gives “Tuesday” a clear meaning. A time late on Tuesday in Los Angeles can already be Wednesday in Tokyo, so every participant needs a date as well as a clock time. MeetAcross displays both for each location.</p>
+    <p>Use the date of the meeting rather than today's offset. Daylight saving changes can alter the difference between cities, and different countries can change clocks on different weekends. A slot that works this week may shift by an hour next week. The <a href="/tokyo-london-new-york.html">Tokyo, London, and New York example</a> shows this problem in October and November 2026.</p>
+
+    <h2>Give each city its real working window</h2>
+    <p>Add up to four cities and set local start and end times for each. The initial window is 09:00–17:00, with weekdays only enabled. Those defaults are assumptions you can edit; they are not evidence of anybody's availability. A teammate working 07:00–15:00 needs their own window.</p>
+    <p>Weekday checks use the local date in each city. The planner does not know public holidays, annual leave, lunch breaks, existing calendar events, or personal commitments. Confirm those separately. Work windows must end after they start on the same local day; overnight shifts are not supported. Choose a daytime window or plan that case directly with the participant.</p>
+
+    <h2>Check the full duration</h2>
+    <p>Choose 30, 60, 90, or 120 minutes before comparing results. A 16:30 start fits a 30-minute meeting in a window ending at 17:00, but a 60-minute meeting would run beyond it. A slot counts as within working hours only when the complete meeting fits each relevant window.</p>
+    <p>The planner considers starts every 30 minutes across the reference date. This makes the list manageable, but it does not test every possible minute. If you need a 09:15 start, use a nearby result to understand the overlap and confirm the exact time in your calendar. Shortening a meeting can create a usable overlap where a longer one would not fit.</p>
+
+    <h2>When there is no shared window</h2>
+    <p>An empty overlap is a useful result. It means none of the tested 30-minute-grid starts satisfies every selected working window for that duration. A narrow overlap at another minute, such as 09:05, may still exist; the planner does not test it. Check exact timing before concluding that no meeting is possible. Do not silently widen someone's window to make a result turn green. Ask whether an exception is acceptable and describe the burden explicitly: “This would be 07:00 for you; would a short call work?”</p>
+    <p>For recurring teams spread across distant regions, consider rotating the inconvenience, holding two smaller calls, or replacing a status meeting with a written update. Recheck any recurring arrangement on both sides of upcoming clock changes. Downloading one calendar event does not create a recurring series.</p>
+
+    <h2>Read offsets and clock-change days carefully</h2>
+    <p>Each displayed UTC offset belongs to that place at that instant. A reference day can contain 23, 24, or 25 hours when local clocks change. MeetAcross follows the actual elapsed day rather than assuming every day is 24 hours. If the reference date's midnight is missing or occurs twice under a local time rule, the planner rejects that reference date instead of choosing an interpretation silently.</p>
+    <p>Calculations use your browser's time-zone data. The <a href="https://www.iana.org/time-zones">IANA Time Zone Database</a> describes the underlying rules and how software vendors distribute updates. Keep your browser and operating system updated, particularly for places with recently changed rules.</p>
+
+    <h2>Share the plan, then confirm it</h2>
+    <p>A share link stores planner settings in its URL fragment. Anyone with the link can see the cities, date, working windows, and duration. The planner does not ask for names or email addresses. You can also download an ICS event using UTC start and end times, based on the <a href="https://www.rfc-editor.org/rfc/rfc5545">iCalendar format</a>.</p>
+    <p>The download adds no attendees and sends no invitations. Import the file into your calendar, check the displayed local time, and invite people through your normal calendar workflow. Confirm the date, duration, and any outside-hours exception with them before treating the meeting as agreed.</p>
+    <p><a class="button" href="/">Plan a meeting</a></p>
+  </main>
+  <footer class="site-footer"><p>MeetAcross · Thoughtful timing for distributed teams.</p><nav aria-label="Footer navigation"><a href="/guide.html">Guide</a><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/contact.html">Contact</a></nav></footer>
+</body>
+</html>

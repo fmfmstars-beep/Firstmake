@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Compare PNG, JPEG and WebP for photos, screenshots and transparent images before exporting with ImageFit Desk.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://image-fit-fmfm-stars.pages.dev/formats.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <title>PNG, JPEG and WebP explained · ImageFit Desk</title>
+</head>
+<body class="page">
+  <header class="site-header"><div class="wrap"><a class="brand" href="/">ImageFit Desk</a><nav class="nav" aria-label="Main navigation"><a href="/guide.html">Guide</a><a href="/formats.html" aria-current="page">Formats</a></nav></div></header>
+  <main class="article wrap">
+    <p class="eyebrow">Choose an output format</p>
+    <h1>PNG, JPEG or WebP?</h1>
+    <p>The smallest file is useful only if it still looks right and the receiving application accepts it. Start with the content and destination rather than assuming one format always wins. ImageFit Desk accepts static PNG, JPEG and WebP and exports through your browser's canvas encoder. Results can differ between browsers.</p>
+
+    <h2>PNG: crisp detail and transparency</h2>
+    <p>PNG uses lossless compression for the pixel data it stores and can preserve transparent areas. It is often a good choice for interface screenshots, simple diagrams or graphics with hard edges. Its file size depends strongly on the picture: an image full of photographic detail may be much larger than a flat-colour graphic with the same dimensions.</p>
+    <p>Lossless encoding does not make the whole editing process lossless. Resizing changes pixels, and browser decoding can affect colour. ImageFit Desk re-encodes PNG without a quality control and does not promise to reach a requested KB target. An exported PNG can be larger than its source.</p>
+
+    <h2>JPEG: photographs without transparent areas</h2>
+    <p>JPEG offers a quality and file-size tradeoff for photographs. Lower quality usually reduces the file but may create blocks, soften fine detail or add fringes around text. Inspect those areas before choosing an aggressive setting. Repeated JPEG exports can compound these changes, so return to the original when trying another setting.</p>
+    <p>JPEG does not support transparency. This tool fills transparent areas with white before JPEG export. A cutout that looked right on a dark background may therefore gain a visible white rectangle. Use PNG or WebP when the transparent background is part of the design.</p>
+
+    <h2>WebP: another option when accepted</h2>
+    <p>WebP supports transparency and can offer useful file sizes for a range of images. This tool's WebP workflow varies browser encoding quality to try your chosen budget. Compare the preview and the actual byte count with a JPEG or PNG export; the best choice depends on the source. Check the upload destination's format list, because a site or desktop application may accept JPEG and PNG but reject WebP.</p>
+
+    <h2>Static images only</h2>
+    <p>Some PNG and WebP files contain animation. ImageFit Desk rejects animated APNG and WebP rather than deliberately reducing them to one frame. GIF, HEIC and SVG are also unsupported. For animation, use an editor that handles timing and frames. For a vector graphic, choose the required export dimensions in a vector editor first.</p>
+
+    <h2>Keep the original and verify the export</h2>
+    <p>Canvas output does not preserve source metadata. That can change orientation handling, colour appearance and other information compared with a specialised image editor. This tool is for practical web exports, not exact archival reproduction or verified removal of identifying information. Keep your original, compare the result visually and test the downloaded file where it will be used.</p>
+    <p><a href="/guide.html">Follow the resize and file-size guide</a> or <a href="/">try an export</a>.</p>
+  </main>
+  <footer class="site-footer"><div class="wrap"><p>ImageFit Desk · Free tools for practical image exports.</p><nav class="nav" aria-label="Footer"><a href="/guide.html">Guide</a><a href="/formats.html">Formats</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav></div></footer>
+</body>
+</html>

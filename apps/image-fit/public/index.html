@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ImageFit Desk — Resize images and try a target file size</title>
+  <meta name="description" content="Resize a JPEG, PNG or WebP image and try a target KB budget in your browser. See the actual dimensions, bytes and before/after previews before downloading.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://image-fit-fmfm-stars.pages.dev/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#tool">Skip to image tool</a>
+  <header class="site-header wrap"><a class="brand" href="/" aria-label="ImageFit Desk home"><span class="brand-mark" aria-hidden="true">↗</span>ImageFit Desk</a><nav class="nav" aria-label="Main navigation"><a href="/guide.html">Size guide</a><a href="/formats.html">Image formats</a></nav></header>
+  <main class="wrap">
+    <section class="hero"><p class="eyebrow">A lighter image. A clearer upload.</p><h1>Make your image<br>fit the limit.</h1><p class="hero-copy">Set a file size budget and maximum dimensions. We try the compression, then show you the actual bytes and preview. Everything runs in this browser tab.</p><div class="pills"><span>JPEG · PNG · WebP</span><span>No account needed</span><span>No image uploads</span></div></section>
+    <section id="tool" class="workbench" aria-labelledby="tool-heading">
+      <div class="panel input-panel">
+        <div class="panel-heading"><span class="step">01</span><div><h2 id="tool-heading">Choose &amp; configure</h2><p>Start with one static image.</p></div></div>
+        <form id="image-form">
+          <div id="drop-zone" class="drop-zone">
+            <label class="file-label" for="image-file">Select a JPEG, PNG or WebP</label>
+            <input id="image-file" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp">
+            <p>Or drag a file into this area.</p><p class="fine">Up to 10 MiB · 16 megapixels · 8192 px per side</p>
+          </div>
+          <button id="sample-button" class="button secondary sample-button" type="button">Try a generated sample</button>
+          <p id="source-info" class="source-info">No image selected yet.</p>
+          <div class="field-grid">
+            <div class="field"><label for="target-kb">Target size (KB)</label><input id="target-kb" name="target-kb" type="number" min="0.01" max="10485.76" step="0.01" value="100" required><small>1 KB = 1000 bytes</small></div>
+            <div class="field"><label for="output-format">Output format</label><select id="output-format" name="output-format"><option value="jpeg">JPEG — photographs</option><option value="webp">WebP — compact, with alpha</option><option value="png">PNG — lossless, with alpha</option></select><small>Browser encoder support varies.</small></div>
+            <div class="field"><label for="max-width">Maximum width (px)</label><input id="max-width" name="max-width" type="number" min="1" max="8192" step="1" value="1280" required></div>
+            <div class="field"><label for="max-height">Maximum height (px)</label><input id="max-height" name="max-height" type="number" min="1" max="8192" step="1" value="1280" required></div>
+          </div>
+          <p id="format-note" class="format-note">JPEG cannot store transparency. Transparent areas are filled with white.</p>
+          <p class="fine">Aspect ratio stays intact; images are never enlarged. Dimensions only change to fit the maximums you enter. If the target cannot be met, try smaller maximums yourself.</p>
+          <div class="actions"><button id="optimize-button" class="button primary" type="submit" disabled>Optimize image <span aria-hidden="true">↗</span></button><button id="reset-button" class="button quiet" type="button">Clear</button></div>
+        </form>
+      </div>
+      <div class="panel output-panel">
+        <div class="panel-heading"><span class="step">02</span><div><h2>Your image, checked</h2><p>Compare the result before saving.</p></div></div>
+        <p id="status" class="notice" role="status" aria-live="polite">Choose an image or try the sample to begin.</p>
+        <div class="preview-grid">
+          <figure><figcaption>Original</figcaption><div class="preview-frame"><img id="before-preview" alt="Selected original image preview" hidden><span id="before-placeholder">Your original appears here</span></div></figure>
+          <figure><figcaption>Optimized</figcaption><div class="preview-frame"><img id="after-preview" alt="Optimized image preview" hidden><span id="after-placeholder">Your result appears here</span></div></figure>
+        </div>
+        <div id="result" class="result" hidden><dl class="result-grid"><div><dt>Actual file size</dt><dd id="result-size"></dd></div><div><dt>Output dimensions</dt><dd id="result-dimensions"></dd></div><div><dt>Target budget</dt><dd id="result-target"></dd></div><div><dt>Encoding</dt><dd id="result-quality"></dd></div></dl><p id="result-comparison" class="fine"></p><a id="download-link" class="button primary download-link" download hidden>Download optimized image</a><p class="fine">The download stays available until you change the image or settings, clear the tool, or close the tab.</p></div>
+        <p class="fine panel-footnote">Animated PNG/WebP, GIF, SVG and HEIC are not supported. Canvas export creates a new image; review colour, orientation and small text in the preview.</p>
+      </div>
+    </section>
+    <section class="explain-grid" aria-label="How image sizing works"><article><p class="eyebrow">Dimensions first</p><h2>Pixels and KB do different jobs.</h2><p>A 1280 × 800 image can weigh many different amounts. Maximum dimensions reduce the pixels; a file size budget controls how much encoded data an upload permits.</p><a href="/guide.html">Read the practical size guide →</a></article><article><p class="eyebrow">Honest results</p><h2>A target is a budget, not a promise.</h2><p>JPEG and WebP use up to nine quality trials at the chosen dimensions. PNG is re-encoded once, without a lossy quality setting. The tool always reports the actual saved byte count.</p><a href="/formats.html">Choose a format that fits →</a></article><article><p class="eyebrow">On your device</p><h2>Your file stays in this tab.</h2><p>The browser reads and transforms the image locally. No image processing server is involved. Large files are limited before decoding to keep this small tool manageable.</p><a href="/privacy.html">How local processing works →</a></article></section>
+  </main>
+  <footer class="site-footer wrap"><p>ImageFit Desk <span>· A focused tool by FMFM Tools</span></p><nav aria-label="Footer"><a href="/guide.html">Guide</a><a href="/formats.html">Formats</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav></footer>
+</body>
+</html>

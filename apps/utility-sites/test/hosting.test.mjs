@@ -11,6 +11,7 @@ for (const slug of Object.keys(projects)) {
     assert.equal(root.status, 200);
     assert.match(await root.text(), /ca-pub-8880235014376283/);
     assert.match(root.headers.get('content-security-policy'), /connect-src 'none'/);
+    assert.equal(root.headers.get('content-security-policy').includes("img-src 'self' blob:"), Boolean(projects[slug].blobImages));
     assert.equal(root.headers.get('x-content-type-options'), 'nosniff');
     const head = await request('/', {method:'HEAD'});
     assert.equal(head.status, 200);

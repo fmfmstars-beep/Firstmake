@@ -8,6 +8,8 @@ export const projects = {
   'tidy-csv': { name: 'TidyCSV', project: 'tidy-csv-fmfm-stars' },
   'json-workbench': { name: 'JSONWorkbench', project: 'json-workbench-fmfm-stars' },
   'caption-clean': { name: 'CaptionClean', project: 'caption-clean-fmfm-stars' },
+  'image-fit': { name: 'ImageFit Desk', project: 'image-fit-fmfm-stars', blobImages: true },
+  'meet-across': { name: 'MeetAcross', project: 'meet-across-fmfm-stars' },
 };
 const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.svg':'image/svg+xml', '.txt':'text/plain; charset=utf-8', '.xml':'application/xml; charset=utf-8' };
 
@@ -39,7 +41,8 @@ export async function build(slug) {
     if (/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?\S[\s\S]*?<\/script>/i.test(html)) throw new Error('Inline script: ' + p);
   }
   const assets = Object.fromEntries(Object.entries(contents).map(([p, body]) => [p, {body, type:types[path.extname(p)] || 'application/octet-stream', etag:'"' + createHash('sha256').update(body).digest('hex').slice(0, 24) + '"'}]));
-  const worker = `const assets = ${JSON.stringify(assets)};\n${handle.toString()}\nexport default {fetch:handle};\n`;
+  const imagePolicy = config.blobImages ? "'self' blob:" : "'self'";
+  const worker = `const assets = ${JSON.stringify(assets)};\nconst imagePolicy = ${JSON.stringify(imagePolicy)};\n${handle.toString()}\nexport default {fetch:handle};\n`;
   const out = path.join(app, 'dist');
   await mkdir(out, {recursive:true});
   await writeFile(path.join(out, '_worker.js'), worker);
@@ -50,7 +53,7 @@ export async function build(slug) {
 
 function handle(request) {
   const headers = {
-    'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'",
+    'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src " + imagePolicy + "; connect-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'",
     'X-Content-Type-Options':'nosniff', 'X-Frame-Options':'DENY',
     'Referrer-Policy':'strict-origin-when-cross-origin',
     'Permissions-Policy':'camera=(), microphone=(), geolocation=(), clipboard-write=(self)',
