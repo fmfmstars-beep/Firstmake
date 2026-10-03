@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A practical guide to resizing images, choosing a format and working toward a file-size limit with ImageFit Desk.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://image-fit-fmfm-stars.pages.dev/guide.html">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <title>Resize and file-size guide · ImageFit Desk</title>
+</head>
+<body class="page">
+  <header class="site-header"><div class="wrap"><a class="brand" href="/">ImageFit Desk</a><nav class="nav" aria-label="Main navigation"><a href="/guide.html" aria-current="page">Guide</a><a href="/formats.html">Formats</a></nav></div></header>
+  <main class="article wrap">
+    <p class="eyebrow">A more useful export</p>
+    <h1>Fit the image to the job</h1>
+    <p>A picture can have suitable dimensions and still exceed an upload limit. It can also be a small file with too few pixels for its intended display. ImageFit Desk lets you handle those two requirements separately: first choose the pixel bounds, then select an output format and, where available, try a file-size target. Keep the original so you can make another export without repeatedly encoding the last result.</p>
+
+    <h2>1. Read the receiving site's requirements</h2>
+    <p>Before editing, check the allowed formats, maximum width and height, and maximum file size. A requirement such as “under 200 KB” describes the encoded file, not the size of the image after a browser decodes it. This tool treats one KB as 1,000 bytes. Some applications use 1,024 bytes for a similarly labelled unit, so compare exact byte counts when the boundary matters. Leave a little room below a strict limit rather than aiming for its exact edge.</p>
+
+    <h2>2. Load a supported static image</h2>
+    <p>Choose a PNG, JPEG or WebP image. ImageFit Desk accepts files up to 10 MiB, with neither dimension above 8,192 pixels and no more than 16 million pixels in total. These are separate limits: a 5,000 × 4,000 image exceeds the pixel limit even though each side is below 8,192. Animated PNG and WebP, GIF, HEIC and SVG are outside this tool's scope. Convert those through an appropriate application before using this workflow.</p>
+
+    <h2>3. Set bounds without stretching</h2>
+    <p>Maximum width and height define a box that the result must fit inside. The tool preserves the original aspect ratio, so one dimension may finish below your chosen maximum. For example, a 4,000 × 3,000 photo inside a 1,200 × 800 box becomes about 1,067 × 800, rather than a stretched 1,200 × 800 image. ImageFit Desk does not upscale smaller sources. It also does not crop a wide photo into a square; prepare that crop separately if the destination requires one.</p>
+
+    <h2>4. Match the format to the content</h2>
+    <p>For a photograph without transparency, JPEG is a practical starting point. WebP can be useful when the destination accepts it, including images with transparent areas. PNG is often suitable for crisp interface captures, flat colour and transparency. The <a href="/formats.html">format comparison</a> explains the tradeoffs. A transparent image exported as JPEG gets a white background, so check how that change affects a logo or a cutout.</p>
+
+    <h2>5. Treat a size target as a search</h2>
+    <p>For JPEG or WebP, a target asks the tool to search encoding quality at the selected dimensions. It does not silently keep shrinking the image until the limit is met. A detailed photograph may remain too large even at low quality. If the tool cannot reach your target, reduce the pixel bounds, choose a different accepted format, or relax the budget. A low-quality export that technically fits may be less useful than a smaller but clearer picture.</p>
+    <p>PNG is re-encoded without a quality slider or a promised target size. Re-encoding alone may produce a larger file. Reduce its dimensions if necessary and inspect the reported output size before saving.</p>
+
+    <h2>6. Check the result, then download</h2>
+    <p>Review faces, small text, gradients and transparent edges at the size people will actually view them. Check the output dimensions and byte count, then download and test the file in the receiving application. Renaming a filename extension does not change a format. If a destination rejects the export, confirm its requirements rather than repeatedly converting the same file.</p>
+
+    <h2>Understand the privacy boundary</h2>
+    <p>The image processing happens in your browser tab; the selected image is not uploaded by this tool. Canvas export does not preserve source metadata, and browsers may transform colours while decoding or encoding. This is not a forensic guarantee that every identifying detail has disappeared. Review visible content and use a dedicated workflow when exact colour or verified sanitisation is required.</p>
+    <p><a href="/">Open ImageFit Desk</a></p>
+  </main>
+  <footer class="site-footer"><div class="wrap"><p>ImageFit Desk · Free tools for practical image exports.</p><nav class="nav" aria-label="Footer"><a href="/guide.html">Guide</a><a href="/formats.html">Formats</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav></div></footer>
+</body>
+</html>
