@@ -3,3 +3,5 @@ CREATE TABLE IF NOT EXISTS sessions (hash TEXT PRIMARY KEY, account_id TEXT NOT 
 CREATE INDEX IF NOT EXISTS sessions_account ON sessions(account_id);
 CREATE TABLE IF NOT EXISTS usage (key TEXT PRIMARY KEY, amount INTEGER NOT NULL, expires INTEGER NOT NULL);
 CREATE INDEX IF NOT EXISTS usage_expiry ON usage(expires);
+
+CREATE TABLE IF NOT EXISTS stripe_events (id TEXT PRIMARY KEY, processed INTEGER NOT NULL);
