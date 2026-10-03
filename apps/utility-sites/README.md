@@ -9,11 +9,12 @@ Separate browser utilities use Cloudflare Pages. Processing runs entirely in the
 | CaptionClean | caption-clean-fmfm-stars | https://caption-clean-fmfm-stars.pages.dev/ |
 | ImageFit Desk | image-fit-fmfm-stars | https://image-fit-fmfm-stars.pages.dev/ |
 | MeetAcross | meet-across-fmfm-stars | https://meet-across-fmfm-stars.pages.dev/ |
+| PocketMath | pocketmath-fmfm-stars | https://pocketmath-fmfm-stars.pages.dev/ |
 
 Run from the repository root:
 
 ```sh
-node --test apps/tidy-csv/test/*.test.mjs apps/json-workbench/test/*.test.mjs apps/caption-clean/test/*.test.mjs apps/image-fit/test/*.test.mjs apps/meet-across/test/*.test.mjs
+node --test apps/tidy-csv/test/*.test.mjs apps/json-workbench/test/*.test.mjs apps/caption-clean/test/*.test.mjs apps/image-fit/test/*.test.mjs apps/meet-across/test/*.test.mjs apps/pocketmath/test/*.test.mjs
 node apps/utility-sites/build.mjs
 node --test apps/utility-sites/test/*.test.mjs
 ```
@@ -27,3 +28,5 @@ Research checked on 2026-10-03: [Google's images course](https://web.dev/learn/i
 To use Wrangler, authenticate through its normal secure flow, then run `npx wrangler pages deploy apps/tidy-csv/dist --project-name tidy-csv-fmfm-stars` (use the matching directory and project for each tool). Production and preview compatibility date is 2026-10-01. Do not change the Firstmake main branch or the PhraseLane service when deploying these projects.
 
 Before serving ads, finish provider approval, update privacy disclosures and consent handling for the actual advertising stack, and narrowly adjust CSP to the required provider hosts. Current privacy pages describe the deployed version without ad tracking. Traffic and revenue are not guaranteed by publishing or requesting review.
+
+PocketMath was recovered from its public Direct Upload deployment after AdSense reported a content-related issue. The repair replaces the advertising loader with ownership metadata, fixes a reproduced decimal rounding error, explains remainder allocation, and adds useful calculation guides. The exact review cause is unconfirmed; these changes do not establish policy approval. The original `/about` and `/privacy` paths redirect to their maintained HTML pages.

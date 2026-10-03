@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to split a bill exactly | PocketMath</title>
+<meta name="description" content="Split a bill into whole-cent shares that add back to the total, including worked examples for uneven remainders.">
+<meta name="google-adsense-account" content="ca-pub-8880235014376283">
+<link rel="canonical" href="https://pocketmath-fmfm-stars.pages.dev/bill-split.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><a class="brand" href="/">pocket<span>math</span></a><nav aria-label="Main navigation"><a href="/">Calculators</a><a href="/guide.html">Rounding</a><a href="/bill-split.html" aria-current="page">Bill splitting</a><a href="/discounts.html">Discounts</a><a href="/about.html">About</a></nav></header>
+<main id="main"><article class="reading"><p class="eyebrow">Calculation guide</p><h1>Split the bill. Keep every cent.</h1>
+<p class="intro">An equal split is straightforward until the total cannot be divided evenly into cents. PocketMath gives a complete allocation: some people pay one extra cent, and every share adds back to the bill plus shared extras.</p>
+<h2>Use the final amount to be shared</h2>
+<p>Enter the final total in “Bill amount” with “Shared extras” set to 0, or enter the bill plus extras that are not already included. Do not add a tip, tax, or fee twice. Enter a whole number of people from 1 to 10,000. Each amount field accepts nonnegative values up to 1,000,000,000.00 with at most two decimal places; their combined total can exceed that per-field limit.</p>
+<p>Use a decimal point without currency symbols or thousands separators. If you calculate a tip first, enter the tip tool’s final total as the bill and leave extras at 0. The split tool adds only the extras you enter, then divides the combined total. Keep all amounts in the same currency; the tool does not convert currencies or handle cash denominations.</p>
+<h2>Divide whole cents, then assign the remainder</h2>
+<p>The calculator converts the amount to whole cents, divides those cents by the group size, and keeps the remainder. Everyone pays the base share. The first people in the allocation pay one additional cent until the remainder is used up. Any two shares therefore differ by at most one cent.</p>
+<div class="formula">100.00 = 10,000 cents<br>10,000 ÷ 3 = 3,333 cents each, remainder 1<br>1 person pays 33.34; 2 people pay 33.33</div>
+<p>Those shares total 100.00 exactly. Asking all three people for 33.33 would leave 0.01 unpaid. Asking all three for 33.34 would collect 0.02 too much. Showing a single rounded “per person” amount would hide that difference.</p>
+<h2>Follow a complete dinner example</h2>
+<p>Suppose the agreed bill is 84.70 and the group adds a 15% tip. The exact tip is 12.705, so the tip tool rounds it to 12.71. The final amount is 97.41. Split among four people, this becomes one share of 24.36 and three shares of 24.35: 24.36 + 24.35 + 24.35 + 24.35 = 97.41.</p>
+<p>The ordering is an allocation convention, not a judgment about who should pay more. The group can choose which person takes the extra cent, or rotate that responsibility over repeated meals. PocketMath does not assign names or collect payments.</p>
+<h2>Handle small totals and unequal orders</h2>
+<p>A 0.02 total split among five people produces two shares of 0.01 and three shares of 0.00. A zero total produces zero shares throughout. If people ordered different amounts or agreed different percentages, an equal split is not the correct model: work out those obligations separately. Return to the <a href="/">calculators</a> for an equal split, or read the <a href="/guide.html">rounding guide</a> to see how the tip was obtained.</p>
+</article></main>
+<footer><span>© 2026 PocketMath · Everyday numbers, made clear.</span><div class="footlinks"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/contact.html">Contact</a></div></footer>
+</body>
+</html>

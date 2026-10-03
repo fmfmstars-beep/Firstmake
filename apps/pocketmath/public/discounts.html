@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How sequential discounts work | PocketMath</title>
+<meta name="description" content="Compare one or two percentage discounts, see rounded savings at each stage, and avoid adding discount rates together.">
+<meta name="google-adsense-account" content="ca-pub-8880235014376283">
+<link rel="canonical" href="https://pocketmath-fmfm-stars.pages.dev/discounts.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><a class="brand" href="/">pocket<span>math</span></a><nav aria-label="Main navigation"><a href="/">Calculators</a><a href="/guide.html">Rounding</a><a href="/bill-split.html">Bill splitting</a><a href="/discounts.html" aria-current="page">Discounts</a><a href="/about.html">About</a></nav></header>
+<main id="main"><article class="reading"><p class="eyebrow">Calculation guide</p><h1>Two discounts, one clear calculation.</h1>
+<p class="intro">A second discount usually applies to the price left after the first discount. It does not normally apply to the original price again. PocketMath shows each stage so you can see both the saving and the remaining amount.</p>
+<h2>Work through one discount</h2>
+<p>Enter the original amount, then a discount from 0 to 100%. The amount can have at most two decimal places and cannot exceed 1,000,000,000.00. Discount rates can also have up to two decimal places. Enter plain numbers with a decimal point, without currency symbols or thousands separators. The tool uses a two-decimal monetary model throughout.</p>
+<div class="formula">79.99 × 15% = 11.9985 → 12.00 saving<br>79.99 − 12.00 = 67.99 remaining</div>
+<p>The saving is rounded to the nearest cent using round half up, then subtracted from the starting amount. A half-cent saving rounds upward. This is a defined calculation method; a seller may use a different receipt-level or item-level rounding method.</p>
+<h2>Apply the next discount to the remaining price</h2>
+<p>If an additional 10% discount applies to that 67.99, the second saving is 6.799, rounded to 6.80. The final price is 61.19. The combined saving is 12.00 + 6.80 = 18.80, which also equals 79.99 − 61.19. Each stage uses the already rounded result of the previous stage.</p>
+<p>To calculate just one discount, set the second rate to 0%. A 0% discount leaves that stage unchanged. A 100% discount removes the remaining amount entirely; any following percentage discount then has a zero amount to reduce.</p>
+<h2>Why 20% plus 10% is not 30%</h2>
+<div class="formula">100.00 − 20% = 80.00<br>80.00 − 10% = 72.00<br>Total saving: 28.00, or 28% of 100.00</div>
+<p>Before cent rounding, the combined rate is 1 − (1 − first rate) × (1 − second rate), with percentages expressed as decimals. For 20% and 10%, that is 1 − 0.80 × 0.90 = 0.28. Adding the rates would incorrectly predict a price of 70.00.</p>
+<h2>Check rounding and checkout conditions</h2>
+<p>Stage-by-stage rounding can make the order matter. On 10.05, a 20% discount saves 2.01, leaving 8.04; then 10% saves 0.80, leaving 7.24. Reversing the order, 10% first saves 1.01, leaving 9.04; then 20% saves 1.81, leaving 7.23. Use the actual offer’s stated order instead of assuming the two rounded workflows always agree.</p>
+<p>This calculator does not establish coupon eligibility, include delivery charges, or decide how tax is applied. Follow the seller’s stated sequence and compare its receipt with the <a href="/guide.html">rounding method</a> used here. The <a href="/">discount calculator</a> helps check arithmetic; the merchant’s applicable terms determine the actual checkout offer.</p>
+</article></main>
+<footer><span>© 2026 PocketMath · Everyday numbers, made clear.</span><div class="footlinks"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/contact.html">Contact</a></div></footer>
+</body>
+</html>

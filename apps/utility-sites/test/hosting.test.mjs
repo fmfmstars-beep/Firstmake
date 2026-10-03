@@ -26,5 +26,11 @@ for (const slug of Object.keys(projects)) {
     for (const p of Object.keys(assets)) assert.equal((await request(p)).status, 200);
     assert.match((await request('/app.js')).headers.get('content-type'), /^text\/javascript/);
     assert.match((await request('/core.mjs')).headers.get('content-type'), /^text\/javascript/);
+    for (const [oldPath, newPath] of Object.entries(projects[slug].aliases || {})) {
+      const alias = await request(oldPath + '?from=legacy');
+      assert.equal(alias.status, 308);
+      assert.equal(alias.headers.get('location'), newPath + '?from=legacy');
+      assert.equal((await request(newPath)).status, 200);
+    }
   });
 }

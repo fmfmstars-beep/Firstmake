@@ -10,6 +10,7 @@ export const projects = {
   'caption-clean': { name: 'CaptionClean', project: 'caption-clean-fmfm-stars' },
   'image-fit': { name: 'ImageFit Desk', project: 'image-fit-fmfm-stars', blobImages: true },
   'meet-across': { name: 'MeetAcross', project: 'meet-across-fmfm-stars' },
+  'pocketmath': { name: 'PocketMath', project: 'pocketmath-fmfm-stars', aliases: { '/about': '/about.html', '/privacy': '/privacy.html' } },
 };
 const types = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.mjs':'text/javascript; charset=utf-8', '.svg':'image/svg+xml', '.txt':'text/plain; charset=utf-8', '.xml':'application/xml; charset=utf-8' };
 
@@ -42,7 +43,7 @@ export async function build(slug) {
   }
   const assets = Object.fromEntries(Object.entries(contents).map(([p, body]) => [p, {body, type:types[path.extname(p)] || 'application/octet-stream', etag:'"' + createHash('sha256').update(body).digest('hex').slice(0, 24) + '"'}]));
   const imagePolicy = config.blobImages ? "'self' blob:" : "'self'";
-  const worker = `const assets = ${JSON.stringify(assets)};\nconst imagePolicy = ${JSON.stringify(imagePolicy)};\n${handle.toString()}\nexport default {fetch:handle};\n`;
+  const worker = `const assets = ${JSON.stringify(assets)};\nconst imagePolicy = ${JSON.stringify(imagePolicy)};\nconst aliases = ${JSON.stringify(config.aliases || {})};\n${handle.toString()}\nexport default {fetch:handle};\n`;
   const out = path.join(app, 'dist');
   await mkdir(out, {recursive:true});
   await writeFile(path.join(out, '_worker.js'), worker);
@@ -64,6 +65,7 @@ function handle(request) {
   let pathname;
   try { pathname = decodeURIComponent(new URL(request.url).pathname); }
   catch { return new Response('Invalid path', {status:400, headers}); }
+  if (Object.hasOwn(aliases, pathname)) return new Response(null, {status:308, headers:{...headers, Location:aliases[pathname] + new URL(request.url).search}});
   if (pathname === '/') pathname = '/index.html';
   const found = Object.hasOwn(assets, pathname);
   const asset = assets[found ? pathname : '/404.html'];
