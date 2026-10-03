@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Fix and Convert SRT and WebVTT Subtitles — CaptionClean</title>
+  <meta name="description" content="A practical guide to subtitle timing offsets, SRT and WebVTT conversion, whitespace cleanup, markup, and a reliable final video preview.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <meta name="theme-color" content="#fff9ef">
+  <link rel="canonical" href="https://caption-clean-fmfm-stars.pages.dev/guide.html">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="site-header wrap"><a class="brand" href="/" aria-label="CaptionClean home"><img src="/favicon.svg" alt="" width="36" height="36">Caption<span>Clean</span></a><nav aria-label="Main navigation"><a href="/guide.html" aria-current="page">Subtitle guide</a><a href="/about.html">About</a></nav></header>
+  <main class="wrap"><article class="article-main"><p class="eyebrow">THE PRACTICAL SUBTITLE GUIDE</p>
+<h1>A clean subtitle file starts with a good timing check.</h1>
+<p class="lede">CaptionClean repairs the structure of an existing caption file. Use this workflow to decide what to change, understand what conversion keeps, and avoid fixing the wrong problem.</p>
+<h2>Start with a copy and a reference moment</h2>
+<p>Keep the original subtitle file untouched. Open your video and find a clear spoken phrase near the beginning. Compare the moment the phrase is spoken with the moment its caption appears. Repeat near the middle and end. This simple check tells you whether a constant offset is the right repair.</p>
+<p>If every caption appears about half a second late, use an offset of <code>-0.5 seconds</code>. If every caption appears a second early, use <code>+1 second</code>. Positive values move captions later; negative values move them earlier. CaptionClean applies the same change to every cue, including multiline cues.</p>
+<p>If the gap becomes progressively larger, the file may have been prepared for another edit or playback speed. A constant shift will not solve that drift. Use a subtitle editor with time stretching or retime the affected sections manually.</p>
+<h2>Choose SRT or WebVTT for the destination</h2>
+<p>SRT is a simple caption format accepted by many video editors and players. Each cue contains a number, a start and end timestamp, and one or more lines of text. Its timestamps use a comma before milliseconds:</p>
+<pre><code>1
+00:00:01,250 --> 00:00:03,500
+A clear first line.
+A useful second line.</code></pre>
+<p>WebVTT starts with a <code>WEBVTT</code> header and uses a dot before milliseconds. It is commonly used by web video players. CaptionClean accepts both full hour timestamps and short WebVTT timestamps such as <code>01:05.250</code>, then exports full timestamps for consistency.</p>
+<p>Choose the output your destination accepts. Converting the extension alone is not enough: the timestamp separator and WebVTT header also need to change. CaptionClean does that and generates fresh cue numbers in the source order.</p>
+<h2>Clean spaces without merging captions</h2>
+<p>The space cleanup option trims each caption line and collapses repeated horizontal spaces or tabs. It preserves intentional line breaks. A two-line caption stays two lines, and separate cues stay separate. Disable this option when deliberate spacing carries meaning in your source.</p>
+<p>The markup removal option is separate. It removes tags such as <code>&lt;i&gt;</code>, WebVTT voice tags, and common brace-based styling commands. It also turns common HTML entities into their text characters. Leave it off if you want to keep caption text markup for a compatible player. When tag removal would leave an empty cue, conversion stops so you can inspect the problem.</p>
+<h2>Watch what crosses the zero mark</h2>
+<p>There is no valid negative playback timestamp. When a negative offset moves a cue's start below zero but its end remains positive, CaptionClean clips the start to zero. If the cue ends at or before zero, it is omitted. The result includes a notice with the affected cue counts. When all cues would be omitted, the tool returns an error rather than an empty download.</p>
+<p>These changes can shorten the opening caption. If that matters, choose a smaller offset or edit the opening cue separately. A notice is a prompt to review your result, not proof that the shortened caption will read well.</p>
+<h2>Know what a plain export leaves behind</h2>
+<p>CaptionClean exports timing and caption text. WebVTT cue settings for placement and alignment, cue identifiers, header metadata, NOTE blocks, STYLE blocks, and REGION blocks are not preserved. Conversion notices identify these omissions. A heavily styled caption track needs a dedicated editor if that information is essential. Inline WebVTT timing tags used for karaoke-style highlighting are rejected; remove or retime them in a subtitle editor before conversion.</p>
+<p>Overlapping cues are preserved in their original order. They may be intentional, such as two speakers talking together. CaptionClean does not automatically sort, merge, or resolve them.</p>
+<h2>Finish with a video preview</h2>
+<p>Download the result and load it with the exact video you intend to share. Check the opening, middle, ending, long lines, overlaps, and any cues mentioned in notices. Confirm the words, language, line wrapping, timing, and placement. This tool checks basic structure; it does not assess translation accuracy, reading speed, or accessibility quality.</p>
+<p>Files are read as UTF-8 text, up to 2 MiB. Processing stays in your browser. If a file shows garbled characters, re-export it as UTF-8 from your editor before trying again.</p>
+<a class="button primary article-action" href="/">Open the caption repair desk <span aria-hidden="true">→</span></a></article></main>
+  <footer class="site-footer wrap"><div><a class="brand" href="/">Caption<span>Clean</span></a><p>A focused tool for caption corrections.</p></div><nav aria-label="Footer navigation"><a href="/">Tool</a><a href="/guide.html">Guide</a><a href="/about.html">About</a><a href="/contact.html">Contact</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav><p class="copyright">© 2026 CaptionClean</p></footer>
+</body>
+</html>
