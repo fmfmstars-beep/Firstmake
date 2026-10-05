@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {DatabaseSync} from 'node:sqlite';
 import {readFileSync} from 'node:fs';
 import {createHmac} from 'node:crypto';
-import worker,{verifyStripe} from '../src/worker.mjs';
+import worker,{verifyStripe,digest} from '../src/worker.mjs';
 function setup(){const db=new DatabaseSync(':memory:');db.exec(readFileSync('schema.sql','utf8'));const DB={prepare(sql){return {bind(...args){const s=db.prepare(sql);return {first:async()=>s.get(...args)||null,run:async()=>s.run(...args)};}};}};let calls=0;return {db,env:{DB,QUOTA_SALT:'test-only-salt',DAILY_TRANSLATION_CAP:'200',AI:{run:async()=>{calls++;return {translated_text:'Hola'};}}},calls:()=>calls};}
 const origin='https://example.com';
 function req(path,data,headers={}){return new Request(origin+path,{method:data===undefined?'GET':'POST',headers:{Origin:origin,'Content-Type':'application/json','CF-Connecting-IP':'192.0.2.1',...headers},body:data===undefined?undefined:JSON.stringify(data)});}
@@ -12,3 +12,20 @@ test('translation enforces input, rate limits and global fuse',async()=>{const {
 test('account keys hashed, cookies secure, restoration and logout work',async()=>{const {env,db}=setup();const r=await worker.fetch(req('/api/accounts',{}),env);assert.equal(r.status,201);const {recoveryKey}=await r.json();assert.match(r.headers.get('set-cookie'),/HttpOnly; Secure; SameSite=Lax/);assert.notEqual(db.prepare('select recovery_hash from accounts').get().recovery_hash,recoveryKey.slice(3));const login=await worker.fetch(req('/api/login',{key:recoveryKey}),env);assert.equal(login.status,200);const Cookie=login.headers.get('set-cookie').split(';')[0];assert.equal((await (await worker.fetch(req('/api/account',undefined,{Cookie}),env)).json()).signedIn,true);await worker.fetch(req('/api/logout',{}, {Cookie}),env);assert.equal((await (await worker.fetch(req('/api/account',undefined,{Cookie}),env)).json()).signedIn,false);});
 test('billing fails closed and forged webhook is rejected',async()=>{const {env}=setup();assert.equal((await worker.fetch(req('/api/checkout',{}),env)).status,503);assert.equal((await worker.fetch(req('/api/webhook',{type:'customer.subscription.updated'}),env)).status,400);assert.equal((await worker.fetch(req('/api/portal',{}),env)).status,401);});
 test('Stripe signature requires untampered body and fresh timestamp',async()=>{const raw='{"hello":true}',t=123456,secret='test_secret';const sig=createHmac('sha256',secret).update(`${t}.${raw}`).digest('hex'),header=`t=${t},v1=${sig}`;assert.equal(await verifyStripe(raw,header,secret,t),true);assert.equal(await verifyStripe(raw+' ',header,secret,t),false);assert.equal(await verifyStripe(raw,header,secret,t+301),false);});
+
+test('disabled AI rejects translation before parsing, same-language handling or any quota consumption',async t=>{
+ const {env,db,calls}=setup();t.after(()=>db.close());env.AI_ENABLED='false';
+ const sessionToken='b'.repeat(64);
+ db.prepare("INSERT INTO accounts(id,recovery_hash,created,status,valid_until) VALUES(?,?,?,?,?)").run('pro-account','unused-recovery-hash',1,'active',9999999999);
+ db.prepare('INSERT INTO sessions(hash,account_id,expires) VALUES(?,?,?)').run(await digest(sessionToken),'pro-account',9999999999);
+ const input={text:'Hi',source:'en',target:'es'};
+ for(const headers of [{},{Cookie:`__Host-phrase_session=${sessionToken}`}]){
+  for(const data of [input,{...input,target:'en'},null])assert.equal((await worker.fetch(req('/api/translate',data,headers),env)).status,503);
+ }
+ assert.equal(calls(),0);assert.equal(db.prepare('SELECT COUNT(*) AS n FROM usage').get().n,0);
+ assert.equal((await worker.fetch(req('/api/translate',input,{Origin:'https://attacker.test'}),env)).status,403);
+});
+test('explicitly enabled AI keeps translation available',async t=>{
+ const {env,db,calls}=setup();t.after(()=>db.close());env.AI_ENABLED='true';
+ assert.equal((await worker.fetch(req('/api/translate',{text:'Hi',source:'en',target:'es'}),env)).status,200);assert.equal(calls(),1);
+});
