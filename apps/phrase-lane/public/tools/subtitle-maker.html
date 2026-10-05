@@ -1,1 +1,75 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Subtitle draft maker · PhraseLane</title><meta name="description" content="Create a local SRT draft from one caption per line. No audio upload or automatic transcription."><meta name="theme-color" content="#175e4b"><meta property="og:title" content="Subtitle draft maker"><meta property="og:description" content="Create a local SRT draft from one caption per line. No audio upload or automatic transcription."><meta property="og:type" content="website"><meta property="og:url" content="https://phrase-lane.fmfm-stars.workers.dev/tools/subtitle-maker"><link rel="canonical" href="https://phrase-lane.fmfm-stars.workers.dev/tools/subtitle-maker"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head><body><a class="skip" href="#main">Skip to content</a><nav aria-label="Main navigation"><a class="brand" href="/"><span class="mark" aria-hidden="true">↗</span>PhraseLane</a><div class="navlinks"><a href="/#workspace">Translator</a><a class="optional" href="/tools/subtitle-maker">Subtitles</a><a href="/blog">Journal</a><a href="/pricing">Pricing</a><a class="smallbtn optional" href="/account">Account ↗</a></div></nav><main id="main" class="wrap"><header class="hero"><div><span class="eyebrow">A small creator tool</span><h1>Words with<br><em>a little timing.</em></h1></div><p>One caption per line. An SRT draft in one click. Everything in this tool is formatted in your browser.</p></header><section class="workspace"><div class="workhead"><div class="tabs"><a href="/#workspace">Text & voice</a><a class="active" href="/tools/subtitle-maker">Subtitle maker</a></div><span class="badge">LOCAL TOOL</span></div><div class="panels"><div class="pane"><label for="captions">Captions, one per line</label><textarea id="captions" maxlength="20000" placeholder="Welcome to our studio.&#10;Today we are sharing a new idea."></textarea><label for="duration">Seconds per caption</label> <select id="duration"><option value="2">2 seconds</option><option value="3" selected>3 seconds</option><option value="4">4 seconds</option><option value="5">5 seconds</option></select></div><div class="pane"><label for="srtOutput">Your SRT draft</label><textarea id="srtOutput" readonly placeholder="Caption numbers and timestamps appear here."></textarea><button id="saveSrt" class="iconbtn">Download .srt</button></div></div><div class="workfoot"><div id="status" class="status" role="status">Even timing is a starting point. Adjust it to match your video.</div><div class="row"><button id="clearSrt" class="iconbtn">Clear</button><button id="makeSrt" class="button">Create captions ↗</button></div></div></section><p class="micro">Up to 200 captions. No audio processing, automatic transcription or translation is performed by this tool.</p><p><a href="/blog/subtitle-draft">Read the subtitle workflow →</a></p></main><footer><div class="footerinner"><span>PhraseLane · A little less lost in translation.</span><div class="footlinks"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/legal">Seller information</a><a href="/contact">Contact</a><a href="/account">Account</a></div></div></footer></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free subtitle draft maker · PhraseLane</title>
+  <meta name="description" content="Turn one caption per line into SRT, WebVTT or plain text. Preview, copy and download free subtitle drafts directly in your browser.">
+  <meta name="theme-color" content="#175e4b">
+  <meta property="og:title" content="Free subtitle draft maker · PhraseLane">
+  <meta property="og:description" content="Preview, copy and download SRT, WebVTT or plain text drafts. Free local processing in your browser.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://phrase-lane.fmfm-stars.workers.dev/tools/subtitle-maker">
+  <link rel="canonical" href="https://phrase-lane.fmfm-stars.workers.dev/tools/subtitle-maker">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/subtitle-tool.css">
+
+  <script src="/subtitle-tool.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <nav aria-label="Main navigation">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true">↗</span>PhraseLane</a>
+    <div class="navlinks">
+      <a href="/#workspace">Translator</a>
+      <a class="optional" href="/tools/subtitle-maker" aria-current="page">Subtitles</a>
+      <a href="/blog">Journal</a><a href="/pricing">Pricing</a>
+      <a class="smallbtn optional" href="/account">Account ↗</a>
+    </div>
+  </nav>
+  <main id="main" class="wrap subtitle-tool">
+    <header class="hero">
+      <div><span class="eyebrow">Free · local · no account needed</span><h1>Words with<br><em>a little timing.</em></h1></div>
+      <p>Give your words a place in the timeline. Paste one caption per line, choose a duration, then save an SRT, WebVTT or text draft.</p>
+    </header>
+    <section class="workspace" aria-label="Subtitle draft maker">
+      <div class="workhead">
+        <div class="tabs"><a href="/#workspace">Text &amp; voice</a><a class="active" href="/tools/subtitle-maker" aria-current="page">Subtitle maker</a></div>
+        <span class="badge">FREE LOCAL TOOL</span>
+      </div>
+      <noscript><p class="notice">Enable JavaScript to generate subtitle drafts in your browser.</p></noscript>
+      <form id="subtitleForm" novalidate>
+        <div class="panels">
+          <div class="pane">
+            <div class="subtitle-label-row"><label for="captions">Your captions</label><button id="sampleCaptions" type="button" class="chip">Try a sample</button></div>
+            <p id="captionHelp" class="subtitle-help">One caption per line. Blank lines are ignored.</p>
+            <textarea id="captions" maxlength="20000" aria-describedby="captionHelp captionCount" placeholder="Welcome to our studio.&#10;Today we are sharing a new idea.&#10;Let’s make something worth sharing."></textarea>
+            <p id="captionCount" class="subtitle-count">0 / 200 captions · 0 / 20,000 characters</p>
+            <div class="subtitle-settings">
+              <div><label for="duration">Seconds per caption</label><input id="duration" type="number" inputmode="numeric" min="1" max="30" step="1" value="3" required aria-describedby="durationHelp"><p id="durationHelp" class="subtitle-help">Whole seconds, from 1 to 30.</p></div>
+              <div><label for="subtitleFormat">Export format</label><select id="subtitleFormat" aria-describedby="formatHelp"><option value="srt">SRT (.srt)</option><option value="vtt">WebVTT (.vtt)</option><option value="txt">Plain text (.txt)</option></select><p id="formatHelp" class="subtitle-help">Numbered captions with timestamps.</p></div>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="subtitle-label-row"><label id="outputLabel" for="srtOutput">Your SRT draft</label><span id="subtitleSummary" class="subtitle-summary">Ready when you are</span></div>
+            <p id="previewHelp" class="subtitle-help">Check the draft here before saving.</p>
+            <textarea id="srtOutput" readonly spellcheck="false" aria-describedby="previewHelp" placeholder="Your generated captions and timestamps will appear here."></textarea>
+            <div class="row subtitle-export"><button id="copySubtitles" type="button" class="iconbtn" disabled>Copy draft</button><button id="saveSrt" type="button" class="iconbtn" disabled>Download .srt</button></div>
+          </div>
+        </div>
+        <div class="workfoot">
+          <div id="subtitleStatus" class="status" role="status" aria-live="polite" aria-atomic="true">Your captions stay in this browser. Start with your own text or try the sample.</div>
+          <div class="row"><button id="clearSrt" type="button" class="iconbtn">Clear</button><button id="makeSrt" type="submit" class="button">Create draft <span aria-hidden="true">↗</span></button></div>
+        </div>
+      </form>
+    </section>
+    <div class="subtitle-notes">
+      <p><strong>A head start on timing.</strong> Every caption uses the same duration, starting at 00:00. Adjust the timing in your video editor to match the speaker.</p>
+      <p><strong>Free in your browser.</strong> No upload, account or subscription is needed for this tool. It formats up to 200 captions and 20,000 characters; it does not transcribe audio or translate text.</p>
+      <p><a href="/blog/subtitle-draft">Read the subtitle workflow →</a></p>
+    </div>
+  </main>
+  <footer><div class="footerinner"><span>PhraseLane · A little less lost in translation.</span><div class="footlinks"><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/legal">Seller information</a><a href="/contact">Contact</a><a href="/account">Account</a></div></div></footer>
+</body>
+</html>

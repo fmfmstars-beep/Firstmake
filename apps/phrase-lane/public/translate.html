@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>English & Japanese for work · PhraseLane</title>
+  <meta name="description" content="Translate short English and Japanese work messages. Try fixed examples, check the result, then copy or show it.">
+  <meta name="theme-color" content="#183b6b">
+  <link rel="canonical" href="https://phrase-lane-fmfm-stars.pages.dev/app">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/mvp.css">
+  <script type="module" src="/translator.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to translator</a>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">↗</span>PhraseLane</a>
+    <nav aria-label="Main navigation"><a href="/pricing">Plans</a><a id="account-link" href="/account">Sign in</a></nav>
+  </header>
+  <main id="main" class="wrap">
+    <header class="intro">
+      <p class="eyebrow">ENGLISH ↔ JAPANESE · FOR WORK</p>
+      <h1>Say it. Check it.<br>Share it.</h1>
+      <p class="lede">A small workspace for the messages that move work forward.</p>
+    </header>
+    <section id="workspace" class="workspace" aria-labelledby="workspace-heading">
+      <div class="workspace-head"><h2 id="workspace-heading">Your message</h2><span class="pill" id="plan-label">Checking access</span></div>
+      <p class="notice" id="availability" role="status">Checking translation availability…</p>
+      <div class="settings">
+        <label for="direction">Language direction<select id="direction"><option value="en-ja">English → Japanese</option><option value="ja-en">Japanese → English</option></select></label>
+        <label for="purpose">Message purpose<select id="purpose"><option value="schedule">Scheduling</option><option value="request">Confirming a request</option><option value="delivery">Delivery update</option><option value="general">General</option></select></label>
+      </div>
+      <div class="message-grid">
+        <div class="message-pane">
+          <div class="field-head"><label id="source-label" for="source">English original</label><span id="count">0 / 1,000</span></div>
+          <textarea id="source" rows="7" required spellcheck="true" aria-describedby="source-help count" placeholder="Write or paste a short work message…"></textarea>
+          <p class="field-note" id="source-help">1–1,000 characters. Check names, dates and numbers before sending.</p>
+          <div class="action-row"><button id="translate" class="button" type="button" disabled>Translate message <span aria-hidden="true">↗</span></button><button id="clear" class="button secondary" type="button">Clear</button></div>
+        </div>
+        <div class="message-pane output-pane">
+          <div class="field-head"><label id="output-label" for="output">Japanese translation</label><span id="result-type">No result yet</span></div>
+          <textarea id="output" rows="7" readonly aria-label="Translation result" placeholder="Your translation will appear here."></textarea>
+          <p class="field-note" id="result-note">Review the meaning and tone before you share.</p>
+          <div class="action-row"><button id="copy" class="button secondary" type="button" disabled>Copy</button><button id="show" class="button secondary" type="button" disabled>Show someone</button><button id="speak" class="button secondary" type="button" disabled>Read aloud</button><button id="stop-speech" class="button secondary" type="button" disabled>Stop audio</button></div>
+          <button id="manual-select" class="text-button" type="button" hidden>Select translation for manual copying</button>
+          <p class="field-note" id="voice-status">Voice availability depends on your device.</p>
+        </div>
+      </div>
+      <div class="workspace-footer"><p id="status" role="status" aria-live="polite">Try a work example below.</p><p id="usage" class="field-note">Usage is shown after account access is checked.</p></div>
+    </section>
+    <section class="record-panel" aria-labelledby="record-heading">
+      <div><p class="eyebrow">OPTIONAL · 2–30 SECONDS</p><h2 id="record-heading">Prefer to speak?</h2><p>Record a short message, then send it for transcription and translation.</p></div>
+      <div class="record-controls">
+        <label class="check"><input type="checkbox" id="cloud-consent">I understand this recording is sent to cloud AI for processing.</label>
+        <label class="check"><input type="checkbox" id="record-consent">I have permission from anyone whose voice I record.</label>
+        <div class="action-row"><button id="record" class="button secondary" type="button" disabled>Record message</button><button id="stop-recording" class="button secondary" type="button" disabled>Stop recording</button><span id="record-timer" aria-live="off">30 seconds maximum</span></div>
+        <audio id="record-preview" controls hidden aria-label="Recorded message preview"></audio>
+        <p class="field-note">Microphone access is requested only when you press Record. Type instead if recording is unavailable.</p>
+      </div>
+    </section>
+    <section class="samples" aria-labelledby="samples-heading">
+      <div class="section-head"><div><p class="eyebrow">NO SIGN-IN NEEDED</p><h2 id="samples-heading">Start with a work example.</h2></div><p>Fixed example pairs. These are not live AI results.<br>Human native-speaker review is still pending.</p></div>
+      <div id="samples" class="sample-grid"></div>
+    </section>
+    <aside class="data-note"><h2>A little care before sharing.</h2><p>Cloud translation processes the text or recording you send. Avoid confidential or personal information. Machine translation can make mistakes. Read aloud uses your OS or browser voice service, which may process the text externally. Clear removes this page’s original, translation and recording; already sent content is subject to the provider’s policies.</p><a href="/privacy">Read the privacy policy ↗</a></aside>
+  </main>
+  <footer><span>PhraseLane · Keep the conversation moving.</span><div><a href="/pricing">Plans</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/account">Account</a></div></footer>
+  <dialog id="show-dialog" aria-labelledby="show-heading"><div class="dialog-head"><h2 id="show-heading">Your message</h2><button id="close-dialog" class="button secondary" type="button">Close</button></div><p id="shown-translation" dir="auto"></p><p class="field-note">Please check that the meaning is correct.</p></dialog>
+</body>
+</html>

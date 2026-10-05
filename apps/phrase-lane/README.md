@@ -1,3 +1,5 @@
+> **2026-10-05 integration branch:** Read [LAUNCH.md](LAUNCH.md) for the current audio/text MVP, deployment boundaries and remaining owner setup. The older implementation notes below describe the legacy beta and must not be used as current billing instructions.
+
 # PhraseLane
 
 International text translation, browser voice input and speech playback, local subtitle drafts, and six original English blog articles.
