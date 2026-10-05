@@ -22,6 +22,15 @@
 <p>For the nonnegative adjustments used here, “round half up” means rounding a fraction below half a cent down and a fraction of half a cent or more up. The percentage adjustment is rounded before it is added to or subtracted from the starting amount.</p>
 <div class="formula">0.29 × 50% = 0.145 → 0.15 tip<br>0.29 + 0.15 = 0.44 total</div>
 <p>A 50% tip on 0.29 is exactly 14.5 cents. The tip therefore becomes 15 cents. By comparison, a 15% tip on 12.30 is 1.845, rounded to 1.85; the resulting total is 14.15. The calculator shows the rounded adjustment and total separately.</p>
+<h2 id="split-after-rounding">Split the rounded total without losing a cent</h2>
+<p>Suppose three people share a bill of 12.30 with a 15% tip. Use the <a href="/#tip-title">tip calculator</a> with bill amount 12.30, tip 15 and people 3. All amounts below use the same currency and a 0.01 smallest unit.</p>
+<ol>
+<li><strong>Round the tip:</strong> 12.30 × 15% = 1.845, which rounds half up to 1.85.</li>
+<li><strong>Add it once:</strong> 12.30 + 1.85 = 14.15 to pay in total.</li>
+<li><strong>Divide into whole cents:</strong> 1,415 cents ÷ 3 leaves 471 cents each and 2 cents to distribute. Two people pay 4.72 and one pays 4.71.</li>
+</ol>
+<div class="formula">4.72 + 4.72 + 4.71 = 14.15</div>
+<p>Rounding every person's share independently to 4.72 would collect 14.16, one cent too much. Agree who pays the extra cent; PocketMath shows the payment groups without assigning them to named people. For a bill that already includes the tip, use the <a href="/bill-split.html">bill-splitting guide</a> and avoid adding it again.</p>
 <h2>Know which value is rounded</h2>
 <p>For discounts, PocketMath rounds the saving, then subtracts it. A 50% discount on 0.29 produces a saving of 0.15 and a final price of 0.14. Directly rounding the unrounded final price of 0.145 would give 0.15 instead. Neither workflow should be silently substituted for the other: the store’s documented rounding policy determines which amount appears on its receipt.</p>
 <p>With two discounts, each saving is rounded at its own stage. The second discount uses the remaining price. This can differ from calculating every stage at unlimited precision and rounding only once at the end. See the <a href="/discounts.html">sequential-discount examples</a> for a complete walkthrough.</p>
