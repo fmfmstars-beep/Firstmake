@@ -1,0 +1,21 @@
+.subtitle-tool .subtitle-label-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;min-height:44px}
+.subtitle-tool label{font-size:14px;font-weight:650}
+.subtitle-tool .subtitle-help{font-size:12px;line-height:1.5;color:var(--muted);margin:5px 0 12px}
+.subtitle-tool .subtitle-label-row .chip{margin:0;min-height:40px}
+.subtitle-tool #captions{min-height:220px;border:1px solid var(--line);border-radius:8px;padding:12px;font-size:16px;background:#fff}
+.subtitle-tool .subtitle-count{font:11px/1.6 var(--mono);color:var(--muted);text-align:right;margin:6px 0 20px}
+.subtitle-tool .subtitle-count.error{color:#9a291c}
+.subtitle-tool .subtitle-settings{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.subtitle-tool .subtitle-settings input,.subtitle-tool .subtitle-settings select{display:block;width:100%;min-height:44px;margin-top:8px;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:#fff;color:var(--ink)}
+.subtitle-tool [aria-invalid="true"]{border-color:#9a291c!important}
+.subtitle-tool #srtOutput{font:13px/1.65 var(--mono);min-height:310px;height:310px;padding:12px;border:1px solid var(--line);border-radius:8px;background:#f5f8f2;white-space:pre-wrap;overflow-wrap:anywhere}
+.subtitle-tool .subtitle-summary{font:11px/1.5 var(--mono);color:var(--green)}
+.subtitle-tool .subtitle-export{margin-top:12px}
+.subtitle-tool .subtitle-export button{min-height:44px}
+.subtitle-tool .workfoot .status{flex:1 1 290px;max-width:670px}
+.subtitle-tool .workfoot>.row{flex-shrink:0}
+.subtitle-notes{display:grid;grid-template-columns:1fr 1fr;gap:0 36px;padding-top:20px;font-size:13px;color:var(--muted)}
+.subtitle-notes strong{color:var(--ink)}
+.subtitle-notes a{color:var(--green)}
+@media(max-width:760px){.subtitle-tool .hero{gap:6px}.subtitle-tool #captions{min-height:190px}.subtitle-tool #srtOutput{height:250px;min-height:250px}.subtitle-tool .subtitle-settings{gap:12px}.subtitle-tool .workfoot>.row{width:100%;justify-content:space-between}.subtitle-tool .workfoot .button{flex:1}.subtitle-notes{grid-template-columns:1fr;gap:0}.subtitle-tool .subtitle-count{font-size:10px}.subtitle-tool .subtitle-label-row{gap:6px}}
+@media(max-width:360px){.subtitle-tool .subtitle-settings{grid-template-columns:1fr}.subtitle-tool .subtitle-count{text-align:left}}
