@@ -28,6 +28,32 @@ const billingEnvironment=e=>['live','test'].includes(e.BILLING_MODE)&&new RegExp
 export function billingReady(e){return e.BILLING_ENABLED==='true'&&e.LEGAL_READY==='true'&&e.BILLING_TESTED==='true'&&billingEnvironment(e)&&!!e.STRIPE_SECRET_KEY&&!!e.STRIPE_WEBHOOK_SECRET&&!!e.STRIPE_PRICE_ID&&!!e.SELLER_NAME&&!!e.SELLER_ADDRESS&&!!e.SELLER_PHONE&&!!e.CONTACT_EMAIL;}
 async function stripe(env,path,data=null,idempotency=null){if(!billingEnvironment(env))fail(503,'Subscriptions are not open yet.');const headers={Authorization:`Bearer ${env.STRIPE_SECRET_KEY}`,'Stripe-Version':'2026-08-26.dahlia'};if(data)headers['Content-Type']='application/x-www-form-urlencoded';if(idempotency)headers['Idempotency-Key']=idempotency;const res=await fetch(`https://api.stripe.com/v1/${path}`,{method:data?'POST':'GET',headers,body:data?new URLSearchParams(data):undefined,signal:AbortSignal.timeout(15000)});let out;try{out=await res.json();}catch{fail(502,'Billing service is temporarily unavailable.');}if(!res.ok)fail(502,'Billing service is temporarily unavailable.');return out;}
 export async function verifyStripe(raw,header,secret,time=now()){if(!secret||!header)return false;const values=header.split(',').map(x=>x.split('='));const t=values.find(x=>x[0]==='t')?.[1];if(!/^\d+$/.test(t||'')||Math.abs(time-Number(t))>300)return false;const key=await crypto.subtle.importKey('raw',encoder.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['verify']);for(const [k,v] of values){if(k!=='v1'||!/^([a-f0-9]{2}){32}$/.test(v))continue;const sig=Uint8Array.from(v.match(/../g),x=>parseInt(x,16));if(await crypto.subtle.verify('HMAC',key,sig,encoder.encode(`${t}.${raw}`)))return true;}return false;}
+async function paidSubscriptionUntil(env,s,customer,items){
+ // An active subscription can still have an unpaid or failed delayed payment.
+ // Grant only a settled invoice line for this customer's configured Price and
+ // current subscription item; subscription period dates alone are not payment.
+ const currentItems=items.filter(i=>typeof i.id==='string'&&Number.isSafeInteger(i.current_period_end)&&i.current_period_end>now());
+ if(s.status!=='active'||!currentItems.length)return 0;
+ const invoices=await stripe(env,`invoices?subscription=${encodeURIComponent(s.id)}&status=paid&limit=100`);
+ if(!Array.isArray(invoices.data))fail(503,'Paid invoice details are unavailable. Please try later.');
+ let end=0;
+ for(const invoice of invoices.data){
+  if(typeof invoice.id!=='string'||!/^in_[a-zA-Z0-9_]+$/.test(invoice.id)||invoice.status!=='paid'||invoice.livemode!==(env.BILLING_MODE==='live')||stripeId(invoice.customer)!==customer||stripeId(invoice.parent?.subscription_details?.subscription||invoice.subscription)!==s.id)fail(403,'Paid invoice does not match this subscription.');
+  let lines=invoice.lines;
+  if(lines?.has_more)lines=await stripe(env,`invoices/${encodeURIComponent(invoice.id)}/lines?limit=100`);
+  if(!Array.isArray(lines?.data)||lines.has_more)fail(503,'Paid invoice lines need review before access can be confirmed.');
+  for(const line of lines.data){
+   const parent=line.parent?.subscription_item_details;
+   const item=currentItems.find(i=>i.id===stripeId(parent?.subscription_item||line.subscription_item));
+   const price=stripeId(line.pricing?.price_details?.price||line.price);
+   const start=line.period?.start,finish=line.period?.end;
+   if(!item||price!==env.STRIPE_PRICE_ID||stripeId(parent?.subscription||line.subscription)!==s.id||line.invoice!==invoice.id||line.livemode!==(env.BILLING_MODE==='live')||!Number.isSafeInteger(line.amount)||line.amount<0||!Number.isSafeInteger(start)||!Number.isSafeInteger(finish)||start<0||finish<=start||start>now())continue;
+   end=Math.max(end,Math.min(finish,item.current_period_end));
+  }
+ }
+ if(invoices.has_more&&end<=now())fail(503,'Paid invoice history needs review before access can be confirmed.');
+ return end;
+}
 async function syncSub(env,id,accountId,eventId=null,expectedCustomer=null){
  const s=await stripe(env,`subscriptions/${encodeURIComponent(id)}`);
  if(s.id!==id||s.livemode!==(env.BILLING_MODE==='live'))fail(403,'Subscription environment does not match.');
@@ -51,10 +77,10 @@ async function syncSub(env,id,accountId,eventId=null,expectedCustomer=null){
   if(eventId&&s.status!=='active')return null;
   if(!terminalSubscription(a.status)||s.status!=='active')fail(409,'Manage your existing subscription before starting another.');
  }
- const end=Math.max(...items.map(i=>Number.isSafeInteger(i.current_period_end)?i.current_period_end:0));
- const update=env.DB.prepare('UPDATE accounts SET customer=?,subscription=?,status=?,valid_until=? WHERE id=? AND subscription IS ? AND customer IS ?').bind(customer,s.id,s.status,end,accountId,a.subscription,a.customer);
+ const end=await paidSubscriptionUntil(env,s,customer,items);
+ const update=env.DB.prepare('UPDATE accounts SET customer=?,subscription=?,status=?,valid_until=? WHERE id=? AND subscription IS ? AND customer IS ? AND status=? AND valid_until=?').bind(customer,s.id,s.status,end,accountId,a.subscription,a.customer,a.status,a.valid_until);
  let result;
- if(eventId){const results=await env.DB.batch([update,env.DB.prepare('INSERT OR IGNORE INTO stripe_events(id,processed) SELECT ?,? WHERE EXISTS (SELECT 1 FROM accounts WHERE id=? AND subscription=? AND customer=?)').bind(eventId,now(),accountId,s.id,customer)]);result=results[0];}else result=await update.run();
+ if(eventId){const results=await env.DB.batch([update,env.DB.prepare('INSERT OR IGNORE INTO stripe_events(id,processed) SELECT ?,? WHERE EXISTS (SELECT 1 FROM accounts WHERE id=? AND subscription=? AND customer=? AND status=? AND valid_until=?)').bind(eventId,now(),accountId,s.id,customer,s.status,end)]);result=results[0];}else result=await update.run();
  if((result?.meta?.changes??result?.changes)===0)fail(409,'Billing state changed. Please try again.');
  return s;
 }
@@ -79,15 +105,26 @@ async function preventDuplicateSubscription(env,a,customer){
  }
 }
 async function pendingCheckout(env,a,customer){
- const list=await stripe(env,`checkout/sessions?customer=${encodeURIComponent(customer)}&status=open&limit=100&expand%5B%5D=data.line_items`);
+ const list=await stripe(env,`checkout/sessions?customer=${encodeURIComponent(customer)}&limit=100&expand%5B%5D=data.line_items`);
  if(!Array.isArray(list.data)||list.has_more)fail(503,'Pending billing sessions need review. Please try later.');
+ let expired=null;
  for(const s of list.data){
   if(s.livemode!==(env.BILLING_MODE==='live')||stripeId(s.customer)!==customer)fail(403,'Checkout environment does not match.');
-  if(s.mode!=='subscription'||s.client_reference_id!==a.id||s.status!=='open')continue;
+  if(s.mode!=='subscription'||s.client_reference_id!==a.id||!['open','expired'].includes(s.status))continue;
   if(!Array.isArray(s.line_items?.data)||s.line_items.has_more)fail(503,'Pending checkout details are unavailable. Please try later.');
-  if(s.line_items.data.length===1&&s.line_items.data[0].price?.id===env.STRIPE_PRICE_ID&&s.line_items.data[0].quantity===1&&typeof s.url==='string'&&s.expires_at>now())return s.url;
+  if(s.line_items.data.length!==1||s.line_items.data[0].price?.id!==env.STRIPE_PRICE_ID||s.line_items.data[0].quantity!==1)continue;
+  if(s.status==='open'&&s.expires_at>now())return {url:checkoutUrl(s),attempt:null};
+  if(!/^cs_[a-zA-Z0-9_]+$/.test(s.id||'')||!Number.isSafeInteger(s.created))fail(503,'Expired checkout details are unavailable. Please try later.');
+  if(!expired||s.created>expired.created)expired=s;
  }
- return null;
+ // Rotate only after a confirmed expired attempt. Concurrent retries still
+ // share the same key, but cannot receive an old Stripe-idempotency response.
+ return {url:null,attempt:expired?.id||'initial'};
+}
+function checkoutUrl(s){
+ let url;try{url=new URL(s.url);}catch{fail(502,'Checkout is not available. Please try again.');}
+ if(s.status!=='open'||!Number.isSafeInteger(s.expires_at)||s.expires_at<=now()||url.protocol!=='https:'||url.hostname!=='checkout.stripe.com')fail(502,'Checkout is not available. Please try again.');
+ return url.href;
 }
 async function webhook(r,env){
  const raw=await readLimited(r,262144);
@@ -133,10 +170,9 @@ if(path==='/api/logout'){const raw=(r.headers.get('Cookie')||'').match(/__Host-p
 if(path==='/api/translate'){if(env.AI_ENABLED==='false')fail(503,'AI translation is temporarily unavailable. The local tools are still available.');const ip=await throttle(r,env,'translate',6,60);const a=await current(r,env),pro=isPro(a);const input=validateTranslation(await body(r),pro?1000:500);if(input.source_lang===input.target_lang)return json({text:input.text,elapsedMs:0,engine:'Same language'});const day=Math.floor(now()/86400);if(pro){await consume(env,`pro-day:${a.id}:${day}`,1,100,(day+2)*86400);await consume(env,`pro:${a.id}:${new Date().toISOString().slice(0,7)}`,[...input.text].length,50000,now()+5356800);}else await consume(env,`free:${ip}:${day}`,1,10,(day+2)*86400);
 // Global cost fuse is independent of visitor identity; exceeding it fails closed.
 await consume(env,`global:${day}`,1,Number(env.DAILY_TRANSLATION_CAP||200),(day+2)*86400);const start=Date.now();let output;try{output=await env.AI.run('@cf/meta/m2m100-1.2b',input);}catch{fail(503,'Translation is temporarily busy. Your draft is still here; try later.');}if(typeof output?.translated_text!=='string'||!output.translated_text.trim())fail(502,'No translation returned. Please try a shorter sentence.');return json({text:output.translated_text,elapsedMs:Date.now()-start,engine:'Cloudflare AI'});}
-if(path==='/api/checkout'){await throttle(r,env,'checkout',5,3600);if(!billingReady(env))fail(503,'Pro subscriptions are not open yet. The free tools are available.');const a=await required(r,env);const b=await body(r);if(b.savedKey!==true||b.acceptedTerms!==true)fail(400,'Save your account key and accept the terms first.');if(isPro(a))fail(409,'You already have Pro. Use Manage billing.');const customer=await checkoutCustomer(env,a);await preventDuplicateSubscription(env,a,customer);const pending=await pendingCheckout(env,a,customer);if(pending)return json({url:pending});const params={mode:'subscription',integration_identifier:'phrase-lane-pro-zqmbtvar','subscription_data[billing_mode][type]':'flexible','line_items[0][price]':env.STRIPE_PRICE_ID,'line_items[0][quantity]':'1',client_reference_id:a.id,'subscription_data[metadata][account_id]':a.id,success_url:`${u.origin}/account?checkout={CHECKOUT_SESSION_ID}`,cancel_url:`${u.origin}/pricing`,allow_promotion_codes:'false'};params.customer=customer;const s=await stripe(env,'checkout/sessions',params,`checkout-${a.id}-${env.STRIPE_PRICE_ID}-${a.subscription||'initial'}`);return json({url:s.url});}
+if(path==='/api/checkout'){await throttle(r,env,'checkout',5,3600);if(!billingReady(env))fail(503,'Pro subscriptions are not open yet. The free tools are available.');const a=await required(r,env);const b=await body(r);if(b.savedKey!==true||b.acceptedTerms!==true)fail(400,'Save your account key and accept the terms first.');if(isPro(a))fail(409,'You already have Pro. Use Manage billing.');const customer=await checkoutCustomer(env,a);await preventDuplicateSubscription(env,a,customer);const pending=await pendingCheckout(env,a,customer);if(pending.url)return json({url:pending.url});const params={mode:'subscription',integration_identifier:'phrase-lane-pro-zqmbtvar','subscription_data[billing_mode][type]':'flexible','line_items[0][price]':env.STRIPE_PRICE_ID,'line_items[0][quantity]':'1',client_reference_id:a.id,'subscription_data[metadata][account_id]':a.id,success_url:`${u.origin}/account?checkout={CHECKOUT_SESSION_ID}`,cancel_url:`${u.origin}/pricing`,allow_promotion_codes:'false'};params.customer=customer;const s=await stripe(env,'checkout/sessions',params,`checkout-${a.id}-${env.STRIPE_PRICE_ID}-${a.subscription||'initial'}-${pending.attempt}`);return json({url:checkoutUrl(s)});}
 if(path==='/api/sync'){await throttle(r,env,'sync',10,60);const a=await required(r,env),b=await body(r);if(typeof b.checkout!=='string'||!/^cs_[a-zA-Z0-9_]{10,200}$/.test(b.checkout))fail(400,'Invalid checkout reference.');const s=await stripe(env,`checkout/sessions/${encodeURIComponent(b.checkout)}`);if(s.id!==b.checkout||s.livemode!==(env.BILLING_MODE==='live')||s.client_reference_id!==a.id||s.mode!=='subscription'||s.status!=='complete'||s.payment_status!=='paid'||!s.subscription||typeof stripeId(s.customer)!=='string'||(a.customer&&stripeId(s.customer)!==a.customer))fail(403,'Payment is not confirmed for this account.');const subscription=stripeId(s.subscription);if(typeof subscription!=='string'||!/^sub_[a-zA-Z0-9_]+$/.test(subscription))fail(403,'Invalid subscription reference.');await syncSub(env,subscription,a.id,null,stripeId(s.customer));return json({ok:true});}
 if(path==='/api/portal'){await throttle(r,env,'portal',6,60);const a=await required(r,env);if(!a.customer)fail(409,'There is no billing account yet.');const p=await stripe(env,'billing_portal/sessions',{customer:a.customer,return_url:`${u.origin}/account`});return json({url:p.url});}
 fail(404,'Not found.');}
 export default {async fetch(r,env,ctx){try{const url=new URL(r.url);if(url.pathname.startsWith('/api/'))return await api(r,env,ctx);if(!['GET','HEAD'].includes(r.method))fail(405,'Method not allowed.');let path=url.pathname.replace(/\/$/,'')||'/';if(path==='/robots.txt')return new Response(`User-agent: *\nAllow: /\nDisallow: /account\nDisallow: /api/\nSitemap: ${url.origin}/sitemap.xml`,{headers:secureHeaders('text/plain')});if(path==='/sitemap.xml'){const pages=Object.keys(ASSETS).filter(x=>ASSETS[x].type.startsWith('text/html')&&!['/account','/404'].includes(x));return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(p=>`<url><loc>${url.origin}${p}</loc></url>`).join('')}</urlset>`,{headers:secureHeaders('application/xml')});}
 const asset=ASSETS[path]||ASSETS['/404'];let text=asset.content;if(path==='/legal'&&env.LEGAL_READY==='true'){const esc=s=>String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));text=text.replace('<!--SELLER-->',`<dl><dt>Seller</dt><dd>${esc(env.SELLER_NAME)}</dd><dt>Business address</dt><dd>${esc(env.SELLER_ADDRESS)}</dd><dt>Telephone</dt><dd>${esc(env.SELLER_PHONE)}</dd><dt>Contact</dt><dd>${esc(env.CONTACT_EMAIL)}</dd></dl>`);}return new Response(r.method==='HEAD'?null:text,{status:ASSETS[path]?200:404,headers:{...secureHeaders(asset.type),'Cache-Control':path==='/legal'?'no-store':'public, max-age=300'}});}catch(e){return json({error:e instanceof HttpError?e.message:'Service temporarily unavailable. Please try again.',code:e instanceof HttpError?e.status:503},e instanceof HttpError?e.status:503);}},async scheduled(event,env){await env.DB.batch([env.DB.prepare('DELETE FROM usage WHERE expires<?').bind(now()),env.DB.prepare('DELETE FROM sessions WHERE expires<?').bind(now())]);}};
-

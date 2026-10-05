@@ -5,6 +5,24 @@ International text translation, browser voice input and speech playback, local s
 Live: https://phrase-lane.fmfm-stars.workers.dev
 Blog: https://phrase-lane.fmfm-stars.workers.dev/blog
 
+## Current status — 2026-10-05, superseding the archived notes below
+
+The production legacy billing backend hardening is now deployed as Worker version `9dd2a59547f14a95baebd3f07dde0d05`. The exact existing live assets were preserved. Pro entitlement now requires a paid invoice together with an active matching subscription; the backend also rotates expired Checkout sessions and uses subscription/customer compare-and-set updates. **New paid sales remain OFF.**
+
+The legacy backend suite passes **44 tests**. These use controlled responses and do not demonstrate a real Stripe payment end-to-end. Actual Checkout → paid invoice → webhook entitlement → portal cancellation and failure/expiry verification remains outstanding.
+
+The dedicated Stripe sandbox webhook `we_1UN2skEZGF3krm5O111p58bX` now includes `charge.refunded` while preserving its 11 existing events. An actual refund-to-entitlement end-to-end test is still pending.
+
+The combined audio/text MVP is maintained separately on `feat/phraselane-integrated-mvp`. It replaces this branch's earlier draft text-only/calendar-month Pro proposal. The integrated Pro plan is USD 9/month with 7,200 audio seconds and 600 audio attempts, plus 50,000 input text characters and 500 text attempts, per **paid subscription billing period**. Free limits use UTC calendar months. The integrated build is deployed only to the separate sandbox as version `21735127a30f41d089b9178e1ec20e13`; its 38 MVP tests and 3 Pages proxy tests passed. Do not deploy this branch's older pricing/account asset snapshot over the combined MVP.
+
+Stripe's public support address and telephone are now configured as `SELLER_ADDRESS` and `SELLER_PHONE` in both Workers. The seller's formal legal name (`SELLER_NAME`) is still missing, so the full seller disclosure is incomplete. Stripe API keys, Google OAuth setup, real payment verification and live billing setup still require completion. The production D1 extension migration was rejected with authentication error `10000`; a subsequent read confirmed the old schema remains unchanged. Do not turn on `BILLING_TESTED`, `LEGAL_READY` or `BILLING_ENABLED` to bypass these gaps.
+
+A pricing-page screenshot has been captured and is available. The integrated branch's `LAUNCH.md` records the current launch tasks and configuration requirements. The historical sections below document earlier work and must not be used as the current deployment or seller-configuration status.
+
+## Archived development and launch notes
+
+The following notes are retained for history. Current deployment, test-count, seller-configuration and Pro-plan status is given above.
+
 ## Develop
 
 Node 24 recommended (tests use node:sqlite). No npm dependencies.
@@ -63,7 +81,9 @@ The production configuration sets BILLING_MODE=live but leaves billing disabled.
 
 The Node suite uses mocked Stripe responses; it does not prove real sandbox or live checkout. Before enabling billing, test the actual separate sandbox Worker: create/restore an account, start Checkout, complete a test payment, verify webhook-granted Pro without relying on the success page, manage/cancel through the portal, simulate renewal failure, resend an event and confirm duplicate handling. Check USD 9/month price, seller disclosures and global translation capacity. Keep BILLING_TESTED=false until that flow passes, and BILLING_ENABLED=false until all launch conditions are met.
 
-## 2026-10-05 paid-tool preparation update
+## Archived: initial 2026-10-05 paid-tool preparation update
+
+This initial asset-only release record is superseded by the current status above. Its text-only plan, 36-test count, seller-address/telephone gaps and statement that production backend changes were not deployed are historical, not current.
 
 The production release is limited to the new standalone subtitle HTML, JavaScript and CSS, plus the homepage subtitle description. The existing production backend and all production bindings were preserved. The canonical URL is the Worker above.
 
