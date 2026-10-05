@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MeetAcross — Date-specific meeting time zone planner</title>
+  <meta name="description" content="Find meeting times across Tokyo, London, New York and more. Compare full-duration working hours, daylight saving changes and local dates. Share a plan or save an ICS file.">
+  <meta name="google-adsense-account" content="ca-pub-8880235014376283">
+  <link rel="canonical" href="https://meet-across-fmfm-stars.pages.dev/">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header"><a class="brand" href="/">Meet<span>Across</span><span class="brand-dot" aria-hidden="true"></span></a><nav aria-label="Main"><a href="/guide.html">Guide</a><a href="/tokyo-london-new-york.html">Worked example</a><a href="/about.html">About</a></nav></header>
+  <main id="main" class="wrap">
+    <section class="hero"><p class="eyebrow">ONE MEETING · EVERY LOCAL CLOCK</p><h1>Find a time that<br><span>works across cities.</span></h1><p class="intro">Choose the actual date. Compare the <strong>whole meeting</strong> against each city's work hours, including daylight saving changes and calendar dates.</p><div class="hero-notes"><span>Runs in your browser</span><span>No account needed</span><span>Share &amp; save to calendar</span></div></section>
+    <noscript><p class="notice">Enable JavaScript to use the planner. The guides and examples remain available.</p></noscript>
+    <section class="planner" aria-labelledby="planner-heading">
+      <div class="section-top"><div><p class="eyebrow">01 / YOUR PLAN</p><h2 id="planner-heading">Set the day and work windows</h2></div><p>All times use a 24-hour clock.</p></div>
+      <form id="planner-form">
+        <div class="plan-settings"><label>Planning day in<select id="reference" name="reference"></select></label><label>Meeting date<input id="meeting-date" name="date" type="date" min="2000-01-01" max="2100-12-31" required></label><label>Meeting duration<select id="duration" name="duration"><option value="30">30 minutes</option><option value="60" selected>60 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select></label></div>
+        <p class="field-note">The reference city defines the calendar day to search. It can differ from the participant cities. A clock-change day may have 23 or 25 hours.</p>
+        <fieldset class="cities"><legend>Participant cities <span>(1–4)</span></legend><div id="participants"></div><button id="add-city" type="button" class="button secondary small">+ Add a city</button></fieldset>
+        <p class="field-note">Work end must be after work start. Overnight windows and public holidays are not supported. Weekdays means Monday–Friday in each city's local date.</p>
+        <div class="form-actions"><button class="button primary" type="submit">Find meeting times <span aria-hidden="true">↗</span></button><button id="copy-link" type="button" class="button secondary">Copy plan link</button><button id="example" type="button" class="text-button">Try London–New York: October 28</button></div>
+        <p id="link-message" class="field-note" role="status"></p><p id="error" class="error" role="alert" hidden></p>
+      </form>
+    </section>
+    <section id="results" class="results" aria-labelledby="results-heading" hidden>
+      <div class="section-top"><div><p class="eyebrow">02 / COMPARE TIMES</p><h2 id="results-heading">Your meeting options</h2></div><label class="view-label">Show<select id="result-view"><option value="best">Best-fitting starts</option><option value="all">All 30-minute starts</option></select></label></div>
+      <p id="results-summary" class="notice" role="status"></p><p id="results-detail" class="field-note"></p>
+      <section id="selected" class="selected" aria-labelledby="selected-heading" hidden><div class="section-top"><div><p class="eyebrow">YOUR SELECTED TIME</p><h3 id="selected-heading">Ready to share</h3></div><div class="selected-actions"><button id="copy-schedule" type="button" class="button secondary small">Copy schedule</button><a id="download-calendar" class="button primary small" download="meeting.ics" href="#">Save calendar file (.ics)</a></div></div><pre id="selected-text"></pre><p class="field-note">This downloads a calendar event. It does not send invitations or contact participants.</p><p id="selected-message" class="field-note" role="status"></p></section>
+      <div id="slots" class="slot-list"></div>
+    </section>
+    <section class="learn"><div><p class="eyebrow">LESS GUESSWORK</p><h2>A date matters as much as a time.</h2><p>London and New York change their clocks on different dates. Their usual five-hour difference becomes four hours for part of autumn. A repeated hour can also produce two different meetings with the same local start time.</p><a href="/guide.html" class="arrow-link">Read the planning guide <span aria-hidden="true">↗</span></a></div><a class="guide-card" href="/tokyo-london-new-york.html"><span class="eyebrow">A PRACTICAL EXAMPLE</span><h3>Tokyo · London · New York</h3><p>Work through October 2026, see why three standard workdays do not overlap, and choose a compromise deliberately.</p><span class="arrow-link">Explore the example ↗</span></a></section>
+    <p class="data-note">Time zone rules come from your browser's built-in IANA data. Keep your browser and operating system updated. Future government rule changes may require an update; confirm an important meeting with participants. <a href="https://www.iana.org/time-zones">About IANA time zones</a>.</p>
+  </main>
+  <footer class="site-footer"><p>MeetAcross <span>Less time converting. More time connecting.</span></p><nav aria-label="Footer"><a href="/guide.html">Guide</a><a href="/about.html">About</a><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/contact.html">Contact</a></nav></footer>
+</body>
+</html>

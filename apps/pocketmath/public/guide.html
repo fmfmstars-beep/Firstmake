@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Money rounding explained | PocketMath</title>
+<meta name="description" content="Learn how PocketMath rounds tips and discounts to cents, with exact decimal examples and clear limits.">
+<meta name="google-adsense-account" content="ca-pub-8880235014376283">
+<link rel="canonical" href="https://pocketmath-fmfm-stars.pages.dev/guide.html">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header><a class="brand" href="/">pocket<span>math</span></a><nav aria-label="Main navigation"><a href="/">Calculators</a><a href="/guide.html" aria-current="page">Rounding</a><a href="/bill-split.html">Bill splitting</a><a href="/discounts.html">Discounts</a><a href="/about.html">About</a></nav></header>
+<main id="main"><article class="reading"><p class="eyebrow">Calculation guide</p><h1>Why a half-cent matters.</h1>
+<p class="intro">A percentage can produce a fraction of a cent even when you enter an ordinary two-decimal amount. PocketMath makes the rounding step explicit so you can check the result against a receipt or your own calculation.</p>
+<h2>Start with the entered amount</h2>
+<p>The calculators accept nonnegative amounts with no more than two decimal places, up to 1,000,000,000.00. Enter a decimal point without a currency symbol or thousands separator. Internally, an amount such as 12.34 becomes 1,234 whole cents. Percentage rates also use exact decimal input, avoiding accidental changes caused by binary floating-point arithmetic.</p>
+<p>All amounts use the same currency or unit that you choose for your calculation. PocketMath displays two decimal places; it does not convert currencies or implement currency-specific cash-rounding rules. For a currency that normally has zero or three decimal places, these results may not match the required settlement amount.</p>
+<h2>Round half up to the next cent</h2>
+<p>For the nonnegative adjustments used here, “round half up” means rounding a fraction below half a cent down and a fraction of half a cent or more up. The percentage adjustment is rounded before it is added to or subtracted from the starting amount.</p>
+<div class="formula">0.29 × 50% = 0.145 → 0.15 tip<br>0.29 + 0.15 = 0.44 total</div>
+<p>A 50% tip on 0.29 is exactly 14.5 cents. The tip therefore becomes 15 cents. By comparison, a 15% tip on 12.30 is 1.845, rounded to 1.85; the resulting total is 14.15. The calculator shows the rounded adjustment and total separately.</p>
+<h2>Know which value is rounded</h2>
+<p>For discounts, PocketMath rounds the saving, then subtracts it. A 50% discount on 0.29 produces a saving of 0.15 and a final price of 0.14. Directly rounding the unrounded final price of 0.145 would give 0.15 instead. Neither workflow should be silently substituted for the other: the store’s documented rounding policy determines which amount appears on its receipt.</p>
+<p>With two discounts, each saving is rounded at its own stage. The second discount uses the remaining price. This can differ from calculating every stage at unlimited precision and rounding only once at the end. See the <a href="/discounts.html">sequential-discount examples</a> for a complete walkthrough.</p>
+<h2>Check the scope</h2>
+<p>Tip rates can range from 0 to 1,000%, and discount rates from 0 to 100%, with at most two decimal places. These ranges are input limits, not suggested rates. The tools do not decide whether tax or service charges belong in your starting amount. Use the receipt’s stated basis, then return to the <a href="/">calculators</a> to check the arithmetic.</p>
+</article></main>
+<footer><span>© 2026 PocketMath · Everyday numbers, made clear.</span><div class="footlinks"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/contact.html">Contact</a></div></footer>
+</body>
+</html>
