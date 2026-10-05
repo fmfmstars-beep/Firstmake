@@ -9,7 +9,7 @@
 - 🟩 Stripe本番の本人確認・出金先登録・決済受付は有効。本人確認や銀行登録のやり直しは不要。
 - 🟩 Stripeの公開サポート住所・電話を両WorkerのSELLER_ADDRESS / SELLER_PHONEへ設定。正式なSELLER_NAMEは未設定なので販売者情報はまだ公開しない。
 - 🟩 専用Stripe SandboxのWebhook `we_1UN2skEZGF3krm5O111p58bX` に`charge.refunded`を追加し、既存の11イベントを維持。実際の返金通知から権限更新までの通し検証は未実施。
-- 🟩 Cloudflareの公式モデル料金を原価見積りへ設定。AIと購入は有効化せず、停止状態を維持。
+- 🟩 Cloudflareの公式モデル料金を原価見積りへ設定。SandboxのAI処理と両環境の購入は停止状態を維持。本番の既存無料翻訳は従来の設定を保持。
 - 🟧 Stripe本番の商品・Customer Portal設定作成は接続の権限不足で拒否された。商品、価格、Portalの本番作成は未完了。
 - 🟧 本番D1の追加移行は認証エラー10000で失敗。後続の読み取りでは旧スキーマのまま。移行は未適用。
 - 🟧 Stripe APIキー、Google OAuth、正式な販売者名が未設定。実際のSandbox決済・Googleログイン・AI処理の通し検証は未実施。自動テストやデプロイ成功を、実決済の通し検証完了とは扱わない。
