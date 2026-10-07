@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>音声メモから英語の返信 · PhraseLane</title>
+  <meta name="description" content="30秒までの日本語の音声メモから、海外顧客に送る英語の返信文を作成。原文と返信を確認してコピーできます。">
+  <meta name="theme-color" content="#183b6b">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/mvp.css">
+  <link rel="stylesheet" href="/voice-reply.css">
+  <script type="module" src="/voice-reply.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">返信を作成する</a>
+  <header class="topbar">
+    <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">↗</span>PhraseLane</a>
+    <nav aria-label="メインナビゲーション"><a href="/pricing">料金</a><a id="account-link" href="/account">アカウント</a></nav>
+  </header>
+  <main id="main" class="wrap">
+    <header class="intro reply-intro">
+      <p class="eyebrow">JAPANESE VOICE → ENGLISH REPLY</p>
+      <h1>日本語で話して、<br>英語で返信。</h1>
+      <p class="lede">伝えたいことを、30秒の音声メモに。<br class="mobile-break">海外顧客へ送る英語の返信文を作ります。</p>
+      <ol class="reply-steps" aria-label="使い方"><li><span>1</span>録音</li><li><span>2</span>原文・返信を確認</li><li><span>3</span>コピー</li></ol>
+    </header>
+    <section class="workspace" aria-labelledby="workspace-heading">
+      <div class="workspace-head"><h2 id="workspace-heading">英語の返信を作る</h2><span class="pill" id="plan-label">利用状況を確認中</span></div>
+      <p class="notice" id="availability" role="status">ログインと返信機能の利用状況を確認しています。</p>
+      <section class="voice-panel" aria-labelledby="record-heading">
+        <div class="voice-heading"><div><p class="eyebrow">2〜30秒 · 日本語</p><h3 id="record-heading">いつもの言葉で話してください。</h3><p class="field-note">「修正ありがとうございます。金曜日までに確認して返信します。」</p></div><span class="record-clock" id="record-timer" aria-live="off">残り 30 秒</span></div>
+        <label class="check"><input type="checkbox" id="cloud-consent">停止すると音声がクラウドAIに送信され、文字起こし・英語返信の作成が始まることを確認しました。</label>
+        <label class="check"><input type="checkbox" id="record-consent">録音する声の本人の許可があります。</label>
+        <div class="action-row"><button id="record" class="button record-button" type="button" disabled><span aria-hidden="true">●</span>録音を始める</button><button id="stop-recording" class="button" type="button" hidden disabled><span aria-hidden="true">■</span>停止して返信を作る</button><button id="cancel" class="button secondary" type="button" hidden>取り消す</button></div>
+        <p class="field-note" id="record-help">30秒で自動停止・送信します。マイクは「録音を始める」を押したときだけ使用します。録音できない場合は下に入力できます。</p>
+      </section>
+      <div class="message-grid">
+        <div class="message-pane">
+          <div class="field-head"><label for="source">日本語のメモ・文字起こし</label><span id="count">0 / 1,000文字</span></div>
+          <textarea id="source" rows="7" lang="ja" spellcheck="true" aria-describedby="source-help count" placeholder="話した内容がここに表示されます。&#10;直接入力して返信を作ることもできます。"></textarea>
+          <p class="field-note" id="source-help">1〜1,000文字。文字起こしを編集すると、返信を作り直せます。入力した文章もクラウドAIで処理します。</p>
+          <div class="action-row"><button id="generate" class="button" type="button" disabled>入力したメモから返信を作る ↗</button><button id="retry" class="button secondary" type="button" hidden>同じリクエストを再試行</button><button id="clear" class="button secondary" type="button">すべて消去</button></div>
+        </div>
+        <div class="message-pane output-pane">
+          <div class="field-head"><label for="output">海外顧客への英語の返信</label><span id="result-type">まだ作成していません</span></div>
+          <textarea id="output" rows="7" lang="en" readonly aria-describedby="result-note" placeholder="Your English reply will appear here."></textarea>
+          <p class="field-note" id="result-note">送る前に、名前・日付・数字・意図が正しいか確認してください。</p>
+          <div class="action-row"><button id="copy" class="button" type="button" disabled>英語の返信をコピー</button></div>
+          <button id="manual-select" class="text-button" type="button" hidden>返信文を選択して手動でコピー</button>
+        </div>
+      </div>
+      <section class="timing-panel" aria-labelledby="timing-heading">
+        <div class="timing-title"><h3 id="timing-heading">処理時間の実測</h3><span id="timing-kind">未計測</span></div>
+        <dl class="timing-grid"><div><dt id="total-label">停止 → 返信表示</dt><dd id="elapsed-total">—</dd></div><div><dt>文字起こし（サーバー）</dt><dd id="elapsed-transcription">—</dd></div><div><dt>返信生成（サーバー）</dt><dd id="elapsed-generation">—</dd></div><div><dt>録音の長さ</dt><dd id="elapsed-recording">—</dd></div></dl>
+        <p class="field-note" id="timing-note">停止から表示までの時間には、音声変換・アップロード・サーバー処理・結果の表示を含みます。録音時間は別に表示します。</p>
+      </section>
+      <div class="workspace-footer"><p id="status" role="status" aria-live="polite">録音するか、日本語のメモを入力してください。固定例も試せます。</p><p id="usage" class="field-note">利用枠を確認しています。</p></div>
+    </section>
+    <section class="reply-example" aria-labelledby="example-heading"><div><p class="eyebrow">ログイン不要 · 固定例</p><h2 id="example-heading">返信のイメージを見てみる</h2><p>「修正ありがとうございます。金曜日までに確認して返信します。」<br>用意済みの例文です。AI生成や速度の実測は行いません。</p></div><button id="example" class="button secondary" type="button">固定例を表示</button></section>
+    <aside class="data-note"><h2>送信前に、ひと確認。</h2><p>音声と文章はクラウドAIで処理します。機密情報や個人情報は入力しないでください。AIが内容を誤って解釈することがあります。コピーした返信を読み直してから、普段お使いのメールやチャットで送ってください。「すべて消去」はこのページの原文・返信・録音を消去します。すでに送信済みの内容はサービスと処理先のポリシーに従います。</p><a href="/privacy">プライバシーポリシー ↗</a></aside>
+  </main>
+  <footer><span>PhraseLane · Keep the conversation moving.</span><div><a href="/app">翻訳</a><a href="/pricing">料金</a><a href="/privacy">プライバシー</a><a href="/terms">利用規約</a><a href="/account">アカウント</a></div></footer>
+</body>
+</html>

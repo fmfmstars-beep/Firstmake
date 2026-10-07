@@ -1,3 +1,5 @@
+> **2026-10-07 voice reply:** [VOICE-REPLY.md](VOICE-REPLY.md) records the Japanese voice memo → English customer reply feature, existing sandbox URL, real AI timing, preserved launch gates and remaining verification.
+
 > **2026-10-05 integration branch:** Read [LAUNCH.md](LAUNCH.md) for the current audio/text MVP, deployment boundaries and remaining owner setup. The older implementation notes below describe the legacy beta and must not be used as current billing instructions.
 
 # PhraseLane

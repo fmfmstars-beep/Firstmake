@@ -26,8 +26,8 @@ export function encodeMonoWav(samples, inputRate) {
 }
 
 export class MessageRecorder {
-  constructor({onTick = () => {}, onComplete = () => {}, onError = () => {}} = {}) {
-    this.onTick = onTick; this.onComplete = onComplete; this.onError = onError;
+  constructor({onTick = () => {}, onStop = () => {}, onComplete = () => {}, onError = () => {}} = {}) {
+    this.onTick = onTick; this.onStop = onStop; this.onComplete = onComplete; this.onError = onError;
     this.generation = 0; this.state = 'idle'; this.chunks = []; this.length = 0;
   }
   static supported() { return Boolean(navigator.mediaDevices?.getUserMedia && (window.AudioContext || window.webkitAudioContext)); }
@@ -70,13 +70,14 @@ export class MessageRecorder {
   async stop() {
     if (this.state !== 'recording') return;
     const generation = this.generation;
-    this.state = 'stopping'; const samples = new Float32Array(this.length);
+    const stoppedAt = performance.now();
+    this.state = 'stopping'; this.onStop({stoppedAt}); const samples = new Float32Array(this.length);
     let offset = 0; for (const chunk of this.chunks) { samples.set(chunk, offset); offset += chunk.length; }
     const sampleRate = this.sampleRate; this.chunks = []; this.length = 0;
     await this.release();
     if (generation !== this.generation) { samples.fill(0); return; }
     this.state = 'idle';
-    try { const wav = encodeMonoWav(samples, sampleRate); this.onComplete(wav); return wav; }
+    try { const wav = encodeMonoWav(samples, sampleRate); this.onComplete(wav, {stoppedAt, durationSeconds: samples.length / sampleRate}); return wav; }
     finally { samples.fill(0); }
   }
   async release() {
