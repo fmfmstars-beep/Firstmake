@@ -939,6 +939,37 @@ async function translate(env, text, direction, purpose, signal) {
 }
 __name(translate, "translate");
 
+// ../../dist/runtime-config.mjs
+function canonicalOrigin(env) {
+  try {
+    const origin = new URL(env.SITE_ORIGIN);
+    return origin.protocol === "https:" && origin.origin === env.SITE_ORIGIN && !origin.username && !origin.password ? origin.origin : null;
+  } catch {
+    return null;
+  }
+}
+__name(canonicalOrigin, "canonicalOrigin");
+function resultKeyReady(env) {
+  const value = env.RESULT_ENCRYPTION_KEY;
+  if (typeof value !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(value) || value.length % 4 !== 0) return false;
+  try {
+    return atob(value).length === 32;
+  } catch {
+    return false;
+  }
+}
+__name(resultKeyReady, "resultKeyReady");
+function paidBudgetReady(value) {
+  if (typeof value !== "number" && !(typeof value === "string" && /^\d+(?:\.\d{1,6})?$/.test(value))) return false;
+  const micros = Math.round(Number(value) * 1e6);
+  return Number.isSafeInteger(micros) && micros > 0;
+}
+__name(paidBudgetReady, "paidBudgetReady");
+function serviceReady(env) {
+  return env.MVP_ENABLED === "true" && env.MIGRATION_VERIFIED === "true" && providerReady(env) && pricesReady(env) && typeof env.DB?.prepare === "function" && typeof env.DB?.batch === "function" && typeof env.QUOTA_SALT === "string" && !!env.QUOTA_SALT.trim() && resultKeyReady(env) && ["TRANSLATION_MODEL", "TRANSCRIPTION_MODEL"].every((key) => typeof env[key] === "string" && !!env[key].trim()) && paidBudgetReady(env.PRO_MONTHLY_BUDGET_USD) && !!canonicalOrigin(env);
+}
+__name(serviceReady, "serviceReady");
+
 // ../../dist/billing-mvp.mjs
 var BillingError = class extends Error {
   static {
@@ -992,7 +1023,7 @@ async function purchaseAccount(env, id) {
 }
 __name(purchaseAccount, "purchaseAccount");
 function checkoutParameters(env, account) {
-  const parameters = { mode: "subscription", "line_items[0][price]": env.STRIPE_PRICE_ID, "line_items[0][quantity]": "1", client_reference_id: account.id, "subscription_data[metadata][account_id]": account.id, "metadata[app]": "phrase-lane", integration_identifier: "phrase-lane-cxwhtmqa", success_url: `${env.SITE_ORIGIN}/account?payment=pending`, cancel_url: `${env.SITE_ORIGIN}/pricing`, allow_promotion_codes: "false" };
+  const parameters = { mode: "subscription", "line_items[0][price]": env.STRIPE_PRICE_ID, "line_items[0][quantity]": "1", client_reference_id: account.id, "subscription_data[metadata][account_id]": account.id, "metadata[app]": "phrase-lane", success_url: `${env.SITE_ORIGIN}/account?payment=pending`, cancel_url: `${env.SITE_ORIGIN}/pricing`, allow_promotion_codes: "false" };
   if (account.customer) parameters.customer = account.customer;
   else if (account.email) parameters.customer_email = account.email;
   return parameters;
@@ -1126,19 +1157,25 @@ async function subscription(env, id) {
 }
 __name(subscription, "subscription");
 var completion = /* @__PURE__ */ __name((env, event) => env.DB.prepare("UPDATE billing_events SET status='processed',processed_at=? WHERE event_id=?").bind(Date.now(), event.id), "completion");
-// Every ownership-dependent write and completion uses the same post-update binding.
-// A concurrent replacement leaves the event pending instead of rolling it back.
-function billingMutation(env, event, account, sub) {
+function billingMutation(env, event, account, sub, { replace = true } = {}) {
+  const target = replace ? { customer: idOf(sub.customer), subscription: sub.id, status: sub.status } : account;
   const predicate = "EXISTS(SELECT 1 FROM accounts WHERE id=? AND customer IS ? AND subscription IS ? AND status=? AND delete_state IS ?)";
-  const values = [account.id, idOf(sub.customer), sub.id, sub.status, account.delete_state ?? null];
-  const update = env.DB.prepare("UPDATE accounts SET customer=?,subscription=?,status=? WHERE id=? AND customer IS ? AND subscription IS ? AND status=? AND delete_state IS ?").bind(idOf(sub.customer), sub.id, sub.status, account.id, account.customer, account.subscription, account.status, account.delete_state ?? null);
+  const values = [account.id, target.customer, target.subscription, target.status, account.delete_state ?? null];
+  const update = env.DB.prepare("UPDATE accounts SET customer=?,subscription=?,status=? WHERE id=? AND customer IS ? AND subscription IS ? AND status=? AND delete_state IS ?").bind(target.customer, target.subscription, target.status, account.id, account.customer, account.subscription, account.status, account.delete_state ?? null);
   return { predicate, values, async apply(statements = []) {
-    const done = env.DB.prepare(`UPDATE billing_events SET status='processed',processed_at=? WHERE event_id=? AND ${predicate}`).bind(Date.now(), event.id, ...values);
-    const results = await env.DB.batch([update, ...statements, done]);
-    const changed = results.at(-1)?.meta?.changes ?? results.at(-1)?.changes;
-    if (Number(changed) !== 1) throw new BillingError(409, "Billing changed during synchronization. Retry this event.");
+    const done = env.DB.prepare(`UPDATE billing_events SET status=CASE WHEN ${predicate} THEN 'processed' ELSE 'ownership_conflict' END,processed_at=? WHERE event_id=?`).bind(...values, Date.now(), event.id);
+    try {
+      const results = await env.DB.batch([update, ...statements, done]);
+      const changed2 = results.at(-1)?.meta?.changes ?? results.at(-1)?.changes;
+      if (Number(changed2) !== 1) throw new BillingError(409, "Billing changed during synchronization. Retry this event.");
+    } catch (error2) {
+      if (error2 instanceof BillingError) throw error2;
+      if (/CHECK constraint failed:.*status/i.test(String(error2?.message || ""))) throw new BillingError(409, "Billing changed during synchronization. Retry this event.");
+      throw new BillingError(503, "Billing synchronization is temporarily unavailable.");
+    }
   } };
 }
+__name(billingMutation, "billingMutation");
 async function refundInvoice(env, charge) {
   let invoiceId = idOf(charge.invoice);
   if (!invoiceId) {
@@ -1146,10 +1183,10 @@ async function refundInvoice(env, charge) {
     if (!intent) return null;
     const query = new URLSearchParams({ "payment[type]": "payment_intent", "payment[payment_intent]": intent, status: "paid", limit: "100" });
     const payments = await stripe(env, `invoice_payments?${query}`);
-    if (!Array.isArray(payments.data) || payments.has_more) throw new BillingError(503, "Multiple-payment refunds require manual verification.");
+    if (!Array.isArray(payments.data) || payments.has_more !== false) throw new BillingError(503, "Multiple-payment refunds require manual verification.");
     if (!payments.data.length) return null;
-    if (payments.data.some((p) => p.livemode !== (env.BILLING_MODE === "live") || p.status !== "paid" || p.payment?.type !== "payment_intent" || idOf(p.payment.payment_intent) !== intent)) throw new BillingError(403, "Refund payment ownership does not match.");
-    const invoices = [...new Set(payments.data.map((p) => idOf(p.invoice)))];
+    if (payments.data.some((item) => item.livemode !== (env.BILLING_MODE === "live") || item.status !== "paid" || item.payment?.type !== "payment_intent" || idOf(item.payment.payment_intent) !== intent)) throw new BillingError(403, "Refund payment ownership does not match.");
+    const invoices = [...new Set(payments.data.map((item) => idOf(item.invoice)))];
     if (invoices.length !== 1 || !invoices[0]) throw new BillingError(503, "Multiple-payment refunds require manual verification.");
     invoiceId = invoices[0];
   }
@@ -1157,6 +1194,7 @@ async function refundInvoice(env, charge) {
   if (invoice.id !== invoiceId || invoice.livemode !== (env.BILLING_MODE === "live") || idOf(invoice.customer) !== idOf(charge.customer)) throw new BillingError(403, "Refund invoice ownership does not match.");
   return invoice;
 }
+__name(refundInvoice, "refundInvoice");
 async function paymentDetails(env, invoice) {
   const unknown = { refunds: null, fees: null, net: null };
   try {
@@ -1193,21 +1231,18 @@ async function applyEvent(env, event) {
     }
     const { sub, account, obsolete } = await subscription(env, subId);
     if (idOf(invoice.customer) !== idOf(sub.customer)) throw new BillingError(403, "Invoice customer does not match.");
-    if (obsolete) { await completion(env, event).run(); return; }
-    const mutation = billingMutation(env, event, account, sub);
+    const mutation = billingMutation(env, event, account, sub, { replace: !obsolete });
     if (event.type !== "invoice.paid" || invoice.status !== "paid" || invoice.paid === false || !["subscription_create", "subscription_cycle"].includes(invoice.billing_reason)) {
       await mutation.apply();
       return;
     }
     const lines = invoice.lines?.data || [];
     if (invoice.lines?.has_more) throw new BillingError(503, "Invoice requires further verification.");
-    const matching = lines.filter((item) => idOf(item.pricing?.price_details?.price || item.price) === env.STRIPE_PRICE_ID && item.proration !== true && item.parent?.subscription_item_details?.proration !== true);
-    const line = matching[0];
+    const matching = lines.filter((item) => idOf(item.pricing?.price_details?.price || item.price) === env.STRIPE_PRICE_ID && item.proration !== true && item.parent?.subscription_item_details?.proration !== true), line = matching[0];
     if (matching.length !== 1 || invoice.currency !== "usd" || !Number.isSafeInteger(invoice.amount_paid) || invoice.amount_paid < 900 || (line.quantity ?? 1) !== 1 || idOf(line.parent?.subscription_item_details?.subscription || line.subscription || sub.id) !== sub.id) throw new BillingError(403, "Invoice plan does not match.");
     const start3 = Number(line.period?.start) * 1e3, end = Number(line.period?.end) * 1e3;
     if (!Number.isSafeInteger(start3) || !Number.isSafeInteger(end) || start3 >= end || end - start3 < 20 * 864e5 || end - start3 > 40 * 864e5) throw new BillingError(403, "Invoice period is invalid.");
     const periodId = `pro:${sub.id}:${start3}:${end}`, stamp = Date.now(), revoked = ["canceled", "incomplete_expired"].includes(sub.status) ? stamp : null;
-    if (sub.status !== "active" && revoked === null) throw new BillingError(503, "Paid access is awaiting active subscription verification.");
     const insert = env.DB.prepare(`INSERT OR IGNORE INTO paid_period_grants(id,account_id,invoice_id,subscription_id,period_id,period_start,period_end,grant_type,environment,audio_limit,text_limit,audio_attempt_limit,text_attempt_limit,revoked_at,created_at) SELECT ?,?,?,?,?,?,?,?,?,7200,50000,600,500,?,? WHERE ${mutation.predicate}`).bind(crypto.randomUUID(), account.id, invoice.id, sub.id, periodId, start3, end, invoice.billing_reason, env.BILLING_MODE, revoked, stamp, ...mutation.values);
     const until = env.DB.prepare(`UPDATE accounts SET valid_until=MAX(valid_until,?) WHERE id=? AND ${mutation.predicate} AND EXISTS(SELECT 1 FROM paid_period_grants WHERE invoice_id=? AND subscription_id=? AND revoked_at IS NULL)`).bind(Math.floor(end / 1e3), account.id, ...mutation.values, invoice.id, sub.id);
     const financial = await paymentDetails(env, invoice);
@@ -1238,20 +1273,22 @@ async function applyEvent(env, event) {
       return;
     }
     const mutation = billingMutation(env, event, account, sub), statements = [];
-    if (["canceled", "incomplete_expired", "unpaid"].includes(sub.status)) statements.push(env.DB.prepare("UPDATE paid_period_grants SET revoked_at=COALESCE(revoked_at,?) WHERE account_id=? AND subscription_id=? AND period_end>?").bind(Date.now(), account.id, sub.id, Date.now()));
+    if (["canceled", "incomplete_expired"].includes(sub.status)) statements.push(env.DB.prepare("UPDATE paid_period_grants SET revoked_at=COALESCE(revoked_at,?) WHERE account_id=? AND subscription_id=? AND period_end>?").bind(Date.now(), account.id, sub.id, Date.now()));
     await mutation.apply(statements);
     return;
   }
   if (event.type === "charge.refunded") {
     const charge = await stripe(env, `charges/${encodeURIComponent(obj.id)}`);
     if (charge.id !== obj.id || charge.livemode !== (env.BILLING_MODE === "live")) throw new BillingError(403, "Refund environment does not match.");
-    const invoice = await refundInvoice(env, charge);
-    const subscriptionId = idOf(invoice?.parent?.subscription_details?.subscription || invoice?.subscription);
-    if (!invoice || !subscriptionId) { await completion(env, event).run(); return; }
+    const invoice = await refundInvoice(env, charge), subscriptionId = idOf(invoice?.parent?.subscription_details?.subscription || invoice?.subscription);
+    if (!invoice || !subscriptionId) {
+      await completion(env, event).run();
+      return;
+    }
     const invoiceId = invoice.id;
     const grant = await env.DB.prepare("SELECT * FROM paid_period_grants WHERE invoice_id=?").bind(invoiceId).first();
     if (!grant) throw new BillingError(503, "Refund is awaiting payment synchronization.");
-    if (grant.subscription_id !== subscriptionId || charge.currency !== "usd" || !Number.isSafeInteger(charge.amount_refunded) || charge.amount_refunded < 0 || charge.amount_refunded > charge.amount) throw new BillingError(403, "Refund amount or subscription is invalid.");
+    if (grant.subscription_id !== subscriptionId || charge.currency !== "usd" || !Number.isSafeInteger(charge.amount) || !Number.isSafeInteger(charge.amount_refunded) || charge.amount_refunded < 0 || charge.amount_refunded > charge.amount) throw new BillingError(403, "Refund amount or subscription is invalid.");
     const refundAccount = await env.DB.prepare("SELECT customer FROM accounts WHERE id=?").bind(grant.account_id).first();
     if (!refundAccount || refundAccount.customer !== idOf(charge.customer)) throw new BillingError(403, "Refund customer does not match.");
     const statements = [env.DB.prepare("UPDATE payment_metrics SET refunds=?,net=NULL,synced_at=? WHERE invoice_id=?").bind(charge.amount_refunded, Date.now(), invoiceId)];
@@ -1314,12 +1351,6 @@ var error = /* @__PURE__ */ __name((status, message) => {
   throw new InputError(status, message);
 }, "error");
 var enabled = /* @__PURE__ */ __name((env) => env.MVP_ENABLED === "true", "enabled");
-function serviceReady(env) {
-  try {
-    return enabled(env) && env.MIGRATION_VERIFIED === "true" && providerReady(env) && pricesReady(env) && ready(env) && unbase64(env.RESULT_ENCRYPTION_KEY).byteLength === 32 && [env.PRO_MONTHLY_BUDGET_USD, env.FREE_MONTHLY_BUDGET_USD].every(positive) && !!canonical(env);
-  } catch { return false; }
-}
-__name(serviceReady, "serviceReady");
 function config(env) {
   return { translationEnabled: serviceReady(env), modelConfigured: providerReady(env), sampleOnly: !serviceReady(env), billing: billingReady(env) && serviceReady(env) && oidcReady(env), billingReady: billingReady(env) && serviceReady(env) && oidcReady(env), maxChars: 1e3, minimumAudioSeconds: 2, maximumAudioSeconds: 30, proPrice: 9, oidcReady: oidcReady(env), languages: { en: "English", ja: "Japanese" } };
 }
@@ -1537,7 +1568,6 @@ __name(scheduled, "scheduled");
 
 // ../../dist/worker.mjs
 import {ASSETS} from './assets.mjs';
-
 var encoder4 = new TextEncoder();
 var LANGUAGES = { en: "English", es: "Spanish", fr: "French", de: "German", it: "Italian", pt: "Portuguese", ja: "Japanese", ko: "Korean", zh: "Chinese", ar: "Arabic", hi: "Hindi", nl: "Dutch" };
 var publishedExamples = /* @__PURE__ */ new Set(["deadline", "reschedule", "meeting-time", "scope", "format", "priority", "delivery", "revision", "receipt"]);
@@ -1831,6 +1861,20 @@ async function api(r, env, ctx) {
   fail3(404, "Not found.");
 }
 __name(api, "api");
+function runtimeBlocks(text, path, env) {
+  const settings = config(env);
+  const block = /* @__PURE__ */ __name((name, content) => {
+    text = text.replace(new RegExp(`<!--${name}-->[\\s\\S]*?<!--/${name}-->`, "g"), () => `<!--${name}-->${content}<!--/${name}-->`);
+  }, "block");
+  block("SALES_STATUS", settings.billingReady ? "Pro purchases are available. The plan renews monthly until canceled." : "Pro purchases are currently unavailable. No new payment will be taken.");
+  block("PROCESSING_STATUS", settings.translationEnabled && settings.oidcReady ? "Text and audio translation are available after sign-in, within your allowance." : "Text and audio translation are currently unavailable. Fixed examples and the local subtitle tool remain available.");
+  if (path === "/legal" && env.LEGAL_READY === "true" && ["SELLER_NAME", "SELLER_ADDRESS", "SELLER_PHONE", "CONTACT_EMAIL"].every((key) => typeof env[key] === "string" && env[key].trim())) {
+    const escape = /* @__PURE__ */ __name((value) => String(value).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), "escape");
+    block("SELLER", `<dl><dt>Seller</dt><dd>${escape(env.SELLER_NAME)}</dd><dt>Business address</dt><dd>${escape(env.SELLER_ADDRESS)}</dd><dt>Telephone</dt><dd>${escape(env.SELLER_PHONE)}</dd><dt>Contact</dt><dd>${escape(env.CONTACT_EMAIL)}</dd></dl>`);
+  }
+  return text;
+}
+__name(runtimeBlocks, "runtimeBlocks");
 var worker_default = { async fetch(r, env, ctx) {
   try {
     const url = new URL(r.url);
@@ -1861,15 +1905,7 @@ Sitemap: ${url.origin}/sitemap.xml`, { headers: secureHeaders("text/plain") });
       const canonical3 = (env.SITE_ORIGIN || url.origin) + (path === "/translate" ? "/app" : url.pathname);
       text = text.replace(/<link[^>]*rel=[\"']canonical[\"'][^>]*>/gi, "").replace("</head>", `<link rel="canonical" href="${canonical3.replace(/[&<>\"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])}"></head>`);
     }
-    if (asset.type.startsWith("text/html")) {
-      const esc = /* @__PURE__ */ __name((s) => String(s || "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]), "esc");
-      const block = (name, content) => { text = text.replace(new RegExp(`<!--${name}-->[\\s\\S]*?<!--/${name}-->`, "g"), () => `<!--${name}-->${content}<!--/${name}-->`); };
-      block("SALES_STATUS", billingReady(env) ? "Pro purchases are available. The plan renews monthly until canceled." : "Pro purchases are currently unavailable. No new payment will be taken.");
-      block("PROCESSING_STATUS", serviceReady(env) ? "Text and audio translation are available after sign-in, within your allowance." : "Text and audio translation are currently unavailable. Fixed examples and the local subtitle tool remain available.");
-      if (path === "/legal" && env.LEGAL_READY === "true" && ["SELLER_NAME", "SELLER_ADDRESS", "SELLER_PHONE", "CONTACT_EMAIL"].every((key) => typeof env[key] === "string" && env[key].trim())) {
-        block("SELLER", `<dl><dt>Seller</dt><dd>${esc(env.SELLER_NAME)}</dd><dt>Business address</dt><dd>${esc(env.SELLER_ADDRESS)}</dd><dt>Telephone</dt><dd>${esc(env.SELLER_PHONE)}</dd><dt>Contact</dt><dd>${esc(env.CONTACT_EMAIL)}</dd></dl>`);
-      }
-    }
+    if (asset.type.startsWith("text/html")) text = runtimeBlocks(text, path, env);
     return new Response(r.method === "HEAD" ? null : text, { status: ASSETS[path] ? 200 : 404, headers: { ...secureHeaders(asset.type), "Content-Security-Policy": path === "/account" ? secureHeaders(asset.type)["Content-Security-Policy"].replace("script-src 'self'", "script-src 'self' https://challenges.cloudflare.com").replace("connect-src 'self'", "connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com") : secureHeaders(asset.type)["Content-Security-Policy"], "Cache-Control": ["/", "/index", "/pricing", "/terms", "/billing-policy", "/legal", "/account", "/admin", "/translate"].includes(path) ? "no-store" : "public, max-age=300", ...env.INDEXING_ENABLED === "false" || ["/account", "/admin", "/translate"].includes(path) ? { "X-Robots-Tag": "noindex, nofollow" } : {} } });
   } catch (e) {
     const known = safeFailure(e);
@@ -1881,14 +1917,6 @@ Sitemap: ${url.origin}/sitemap.xml`, { headers: secureHeaders("text/plain") });
   await env.DB.batch([env.DB.prepare("DELETE FROM usage WHERE expires<?").bind(now()), env.DB.prepare("DELETE FROM sessions WHERE expires<?").bind(now())]);
 } };
 export {
-  identity,
-  requireFresh,
-  start,
-  billingReady as mvpBillingReady,
-  serviceReady,
-  checkout as mvpCheckout,
-  webhook as mvpWebhook,
-  getUsage as mvpGetUsage,
   LANGUAGES,
   api,
   billingReady2 as billingReady,
