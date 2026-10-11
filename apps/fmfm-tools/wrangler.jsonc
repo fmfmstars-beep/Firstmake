@@ -1,0 +1,7 @@
+{
+  "name": "fmfm-tools",
+  "main": "worker.mjs",
+  "compatibility_date": "2026-10-02",
+  "workers_dev": true,
+  "tags": ["fmfm-tools", "foundation-launch"]
+}
