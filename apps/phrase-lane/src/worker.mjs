@@ -1040,7 +1040,7 @@ function paidBudgetReady(value) {
 }
 __name(paidBudgetReady, "paidBudgetReady");
 function serviceReady(env) {
-  return env.MVP_ENABLED === "true" && env.MIGRATION_VERIFIED === "true" && providerReady(env) && pricesReady(env) && typeof env.DB?.prepare === "function" && typeof env.DB?.batch === "function" && typeof env.QUOTA_SALT === "string" && !!env.QUOTA_SALT.trim() && resultKeyReady(env) && ["TRANSLATION_MODEL", "TRANSCRIPTION_MODEL"].every((key) => typeof env[key] === "string" && !!env[key].trim()) && paidBudgetReady(env.PRO_MONTHLY_BUDGET_USD) && !!canonicalOrigin(env);
+  return env.MVP_ENABLED === "true" && env.MIGRATION_VERIFIED === "true" && providerReady(env) && pricesReady(env) && typeof env.DB?.prepare === "function" && typeof env.DB?.batch === "function" && typeof env.QUOTA_SALT === "string" && !!env.QUOTA_SALT.trim() && resultKeyReady(env) && ["TRANSLATION_MODEL", "TRANSCRIPTION_MODEL"].every((key) => typeof env[key] === "string" && !!env[key].trim()) && paidBudgetReady(env.FREE_MONTHLY_BUDGET_USD) && paidBudgetReady(env.PRO_MONTHLY_BUDGET_USD) && !!canonicalOrigin(env);
 }
 __name(serviceReady, "serviceReady");
 
@@ -1097,7 +1097,7 @@ async function purchaseAccount(env, id) {
 }
 __name(purchaseAccount, "purchaseAccount");
 function checkoutParameters(env, account) {
-  const parameters = { mode: "subscription", "line_items[0][price]": env.STRIPE_PRICE_ID, "line_items[0][quantity]": "1", client_reference_id: account.id, "subscription_data[metadata][account_id]": account.id, "metadata[app]": "phrase-lane", success_url: `${env.SITE_ORIGIN}/account?payment=pending`, cancel_url: `${env.SITE_ORIGIN}/pricing`, allow_promotion_codes: "false" };
+  const parameters = { integration_identifier: "phrase-lane-" + Array.from(crypto.getRandomValues(new Uint8Array(8)), value => String.fromCharCode(97 + value % 26)).join(""), mode: "subscription", "line_items[0][price]": env.STRIPE_PRICE_ID, "line_items[0][quantity]": "1", client_reference_id: account.id, "subscription_data[metadata][account_id]": account.id, "metadata[app]": "phrase-lane", success_url: `${env.SITE_ORIGIN}/account?payment=pending`, cancel_url: `${env.SITE_ORIGIN}/pricing`, allow_promotion_codes: "false" };
   if (account.customer) parameters.customer = account.customer;
   else if (account.email) parameters.customer_email = account.email;
   return parameters;
@@ -1310,6 +1310,7 @@ async function applyEvent(env, event) {
       await mutation.apply();
       return;
     }
+    if (!["active", "canceled", "incomplete_expired"].includes(sub.status)) throw new BillingError(503, "Subscription payment is awaiting verification.");
     const lines = invoice.lines?.data || [];
     if (invoice.lines?.has_more) throw new BillingError(503, "Invoice requires further verification.");
     const matching = lines.filter((item) => idOf(item.pricing?.price_details?.price || item.price) === env.STRIPE_PRICE_ID && item.proration !== true && item.parent?.subscription_item_details?.proration !== true), line = matching[0];
@@ -1347,7 +1348,7 @@ async function applyEvent(env, event) {
       return;
     }
     const mutation = billingMutation(env, event, account, sub), statements = [];
-    if (["canceled", "incomplete_expired"].includes(sub.status)) statements.push(env.DB.prepare("UPDATE paid_period_grants SET revoked_at=COALESCE(revoked_at,?) WHERE account_id=? AND subscription_id=? AND period_end>?").bind(Date.now(), account.id, sub.id, Date.now()));
+    if (["canceled", "incomplete_expired", "unpaid"].includes(sub.status)) statements.push(env.DB.prepare("UPDATE paid_period_grants SET revoked_at=COALESCE(revoked_at,?) WHERE account_id=? AND subscription_id=? AND period_end>?").bind(Date.now(), account.id, sub.id, Date.now()));
     await mutation.apply(statements);
     return;
   }

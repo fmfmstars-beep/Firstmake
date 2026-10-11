@@ -171,7 +171,7 @@ test('delayed terminal subscription cannot replace even another terminal subscri
 test('ledger completion failure rolls back account, quota grant and metrics together',async t => {
   const s=setup(t);
   s.db.exec("CREATE TRIGGER test_fail_completion BEFORE UPDATE OF status ON billing_events WHEN NEW.status='processed' BEGIN SELECT RAISE(ABORT,'completion failed'); END");
-  await assert.rejects(s.send(),/completion failed/);
+  await assert.rejects(s.send(), error => error.status === 503 && error.message === "Billing synchronization is temporarily unavailable.");
   assert.equal(s.account().subscription,null);
   assert.equal(s.db.prepare('SELECT COUNT(*) AS n FROM paid_period_grants').get().n,0);
   assert.equal(s.db.prepare('SELECT COUNT(*) AS n FROM payment_metrics').get().n,0);
