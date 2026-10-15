@@ -28,3 +28,12 @@
 
 ## セーブ情報
 このファイルは進捗チェックポイント。サイト本体やDBのバックアップではない。秘密鍵・認証トークンを保存しない。
+
+## 2026-10-16 実装チェックポイント
+- en.html を追加。英語の概要、架空のカフェの明示、サンプルメニュー、プライバシー・問い合わせ先を掲載。
+- index.html のナビから英語ページへ切替リンクを追加、両ページに相互リンクとhreflangを設置。
+- scripts/build-static.mjs に英語ページ出力、英語CSSのCSPハッシュ、サイトマップURLを追加。
+- GitHubのコミット状況では Vercel firstmake は success、別プロジェクト nayami は failure。これはCloudflare Workers本番反映や実ブラウザ操作テストを保証しない。
+- まだ全文対訳ではない。en.html は英語の概要版であることを本文に明記。
+- Cloudflare本番へのデプロイ未実施。未確認のままmainへのマージをしない。
+- 次: ローカルで node scripts/build-static.mjs および node --test tests/*.test.mjs、ブラウザでスマホ/PCとCSPを確認し、英語の全文訳を整備してから正式公開。
