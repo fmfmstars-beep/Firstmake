@@ -47,3 +47,14 @@ Cloudflare `workcareer` は誤ってこのFirstmakeリポジトリへ接続さ�
 
 Firstmakeの非本番設定は `npx wrangler deploy` から `npx wrangler versions upload` に変更しました。Vercel `nayami` の接続修正はVercelへの接続後に別途確認します。
 
+
+## サイトを見る / View the demo
+
+- [KOMOREBI（日本語・既存公開ページ）](https://firstmake.fmfm-stars.workers.dev/)
+- [English overview（最新版は本番反映待ち）](https://firstmake.fmfm-stars.workers.dev/en.html)
+
+KOMOREBI is a **fictional café website demo**, not a real café or reservation service. The English overview is prepared in GitHub; availability at the production URL is not yet verified.
+
+## 無料集客の計測
+
+広告予算は0円。有料広告のキャンペーンは開始しません。検索・SNS向けメタ情報と、Cloudflare Web Analyticsの登録は確認済みです。流入や訪問数の実測値はまだ未取得です。進捗と確認項目は [無料集客チェックポイント](docs/organic-growth-checkpoint-2026-10-16.md) に保存しています。
