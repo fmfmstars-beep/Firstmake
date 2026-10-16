@@ -1,0 +1,45 @@
+name: PhraseLane Windows preview
+on:
+  push:
+    branches: [build/phraselane-windows-20261017]
+    paths:
+      - 'apps/phraselane-windows-preview/**'
+      - '.github/workflows/phraselane-windows-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: windows-2022
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: apps/phraselane-windows-preview
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check build tools
+        run: |
+          rustc --version
+          cargo --version
+      - name: Install Tauri CLI
+        run: npm install --no-save --package-lock=false @tauri-apps/cli@2
+      - name: Generate application icons
+        run: npx tauri icon app-icon.svg
+      - name: Build unsigned preview
+        run: npx tauri build
+      - name: Save EXE and build metadata
+        uses: actions/upload-artifact@v4
+        with:
+          name: PhraseLane-Windows-x64-UNSIGNED-preview
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            apps/phraselane-windows-preview/src-tauri/target/release/phraselane-desktop.exe
+            apps/phraselane-windows-preview/src-tauri/target/release/bundle/nsis/*setup.exe
+            apps/phraselane-windows-preview/src-tauri/Cargo.lock
+            apps/phraselane-windows-preview/README.md
