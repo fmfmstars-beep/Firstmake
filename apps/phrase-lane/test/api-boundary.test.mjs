@@ -2,6 +2,18 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../src/worker.mjs';
 const env = {SITE_ORIGIN:'https://phrase.test',MVP_ENABLED:'true'};
+test('API failures hide internal errors and never reflect unvalidated request headers', async () => {
+  const internal='INTERNAL_DATABASE_DETAIL_MUST_STAY_PRIVATE';
+  const reflected='PRIVATE_HEADER_MUST_NOT_BE_RETURNED';
+  const r=await worker.fetch(new Request('https://phrase.test/api/me',{
+    headers:{Cookie:'__Host-phrase_session='+'a'.repeat(64),'X-Request-Id':reflected}
+  }),{...env,DB:{prepare(){throw new Error(internal);}}},{});
+  assert.equal(r.status,503);
+  const data=await r.json();
+  assert.equal(data.request_id,null);
+  assert.doesNotMatch(JSON.stringify(data),new RegExp(internal+'|'+reflected));
+  assert.equal(r.headers.get('Cache-Control'),'no-store');
+});
 test('cross-origin browser reads are rejected before accessing customer data', async () => {
   for (const headers of [
     {Origin:'https://attacker.test'},
