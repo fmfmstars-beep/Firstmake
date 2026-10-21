@@ -1,3 +1,5 @@
+import {revenuePeriod} from './revenue-period.mjs';
+import {DesktopError, desktopRoute, desktopSession, desktopNativeRequest, desktopAllowed} from './desktop.mjs';
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
@@ -69,6 +71,7 @@ async function csrf(env, sessionHash) {
 }
 __name(csrf, "csrf");
 async function getSession(request, env) {
+  if (request.headers.has('Authorization')) return desktopSession(request, env);
   const raw = readCookie(request, SESSION_COOKIE);
   if (!raw) return null;
   if (!ready(env)) fail(503, "Authentication is being configured.");
@@ -86,6 +89,7 @@ async function requireSession(request, env) {
 }
 __name(requireSession, "requireSession");
 async function checkCsrf(request, env, session3) {
+  if (session3?.authMethod === 'desktop') { desktopNativeRequest(request, env); return; }
   sameOrigin(request, env);
   const token2 = request.headers.get("X-CSRF-Token");
   if (!session3 || !/^[a-f0-9]{64}$/.test(token2 || "") || !ready(env)) fail(403, "Refresh this page before making this request.");
@@ -1553,8 +1557,10 @@ async function customers(request, env) {
 __name(customers, "customers");
 async function revenue(request, env) {
   const session3 = await owner(request, env);
-  if (new URL(request.url).search) error(400, "Query parameters are not supported.");
-  const rows = await env.DB.prepare("SELECT currency,SUM(gross) AS gross,CASE WHEN COUNT(refunds)=COUNT(*) THEN SUM(refunds) ELSE NULL END AS refunds,CASE WHEN COUNT(fees)=COUNT(*) THEN SUM(fees) ELSE NULL END AS fees,CASE WHEN COUNT(net)=COUNT(*) THEN SUM(net) ELSE NULL END AS net,MAX(synced_at) AS synced FROM payment_metrics GROUP BY currency").all();
+  let selected; try { selected=revenuePeriod(new URL(request.url).search); } catch(e) { error(400,e.message); }
+  const query = "SELECT currency,SUM(gross) AS gross,CASE WHEN COUNT(refunds)=COUNT(*) THEN SUM(refunds) ELSE NULL END AS refunds,CASE WHEN COUNT(fees)=COUNT(*) THEN SUM(fees) ELSE NULL END AS fees,CASE WHEN COUNT(net)=COUNT(*) THEN SUM(net) ELSE NULL END AS net,MAX(synced_at) AS synced FROM payment_metrics" + (selected ? " WHERE paid_at>=? AND paid_at<?" : "") + " GROUP BY currency";
+  const statement=env.DB.prepare(query);
+  const rows=await (selected ? statement.bind(selected.start,selected.end) : statement).all();
   const currencies = (rows.results || []).map((row) => ({ currency: row.currency, gross: row.gross, refunds: row.refunds, fees: row.fees, net: row.net, mrr: null, available: null, pending: null, payouts: null }));
   if (!currencies.length) currencies.push({ currency: "usd", gross: null, refunds: null, fees: null, net: null, mrr: null, available: null, pending: null, payouts: null });
   const active = await env.DB.prepare("SELECT COUNT(DISTINCT account_id) AS total FROM paid_period_grants WHERE environment=? AND revoked_at IS NULL AND period_start<=? AND period_end>?").bind(env.BILLING_MODE, Date.now(), Date.now()).first();
@@ -1576,7 +1582,7 @@ async function revenue(request, env) {
     }
   }
   await audit(env, session3.account, "revenue_read");
-  return { currencies, syncedAt: (rows.results || []).length ? Math.max(...rows.results.map((row) => row.synced)) : null, balanceSyncedAt, balanceScope: "whole Stripe account", period: "all verified invoices recorded by this app", profit: null, bankDeposit: null };
+  return { currencies, syncedAt: (rows.results || []).length ? Math.max(...rows.results.map((row) => row.synced)) : null, balanceSyncedAt, balanceScope: "whole Stripe account", period: selected || "all verified invoices recorded by this app", refundsScope:"refunds on invoices paid in the selected period, not refunds issued during that period", profit: null, bankDeposit: null };
 }
 __name(revenue, "revenue");
 async function removeAccount(request, env) {
@@ -1603,6 +1609,9 @@ async function removeAccount(request, env) {
 __name(removeAccount, "removeAccount");
 async function route(request, env, respond) {
   const url = new URL(request.url), path = url.pathname;
+  if (request.headers.has('Authorization') && !desktopAllowed(request.method, path)) throw new DesktopError(403, 'This action is only available on the website.');
+  const desktop = await desktopRoute(request, env, {body, throttle, getSession, checkCsrf, requireFresh, json:respond});
+  if (desktop) return desktop;
   if (path === "/api/config" && request.method === "GET") return respond(config(env));
   if (path === "/api/me" && request.method === "GET") {
     if (url.search) error(400, "Query parameters are not supported.");
@@ -1650,7 +1659,7 @@ async function route(request, env, respond) {
 }
 __name(route, "route");
 function safeFailure(failure) {
-  return [AuthError, QuotaError, InputError, ProviderError, BillingError].some((Type) => failure instanceof Type) ? { status: failure.status, message: failure.message } : null;
+  return [AuthError, QuotaError, InputError, ProviderError, BillingError, DesktopError].some((Type) => failure instanceof Type) ? { status: failure.status, message: failure.message } : null;
 }
 __name(safeFailure, "safeFailure");
 async function scheduled(env) {
@@ -1685,7 +1694,7 @@ function secureHeaders(contentType = "application/json; charset=utf-8") {
   return { "Content-Type": contentType, "Cache-Control": "no-store", "Content-Security-Policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; media-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'", "Strict-Transport-Security": "max-age=31536000", "X-Content-Type-Options": "nosniff", "X-Frame-Options": "DENY", "Referrer-Policy": "no-referrer", "Permissions-Policy": "microphone=(self), camera=(), geolocation=(), payment=()" };
 }
 __name(secureHeaders, "secureHeaders");
-var json2 = /* @__PURE__ */ __name((value, status = 200, extra = {}) => new Response(JSON.stringify(value), { status, headers: { ...secureHeaders(), ...extra } }), "json");
+var json2 = /* @__PURE__ */ __name((value, status = 200, extra = {}) => new Response(JSON.stringify(value), { status, headers: { ...secureHeaders(), "Cross-Origin-Resource-Policy": "same-origin", ...extra } }), "json");
 var cookie2 = /* @__PURE__ */ __name((t, age = 2592e3) => `__Host-phrase_session=${t}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`, "cookie");
 function sameOrigin2(r) {
   if (r.headers.get("Origin") !== new URL(r.url).origin) fail3(403, "Please use this website to make this request.");
@@ -1976,11 +1985,31 @@ var worker_default = { async fetch(r, env, ctx) {
       if (url.pathname.startsWith("/api/")) return json2({ error: "Use the canonical service URL.", code: 403 }, 403);
       return Response.redirect(env.SITE_ORIGIN + url.pathname + url.search, 308);
     }
-    if (url.pathname.startsWith("/api/")) return await api(r, env, ctx);
+    if (url.pathname.startsWith("/api/")) {
+      const origin = r.headers.get("Origin");
+      const site = r.headers.get("Sec-Fetch-Site");
+      // OAuth redirects are top-level GET navigations; native clients and
+      // signed webhooks have no browser Origin/Fetch Metadata headers.
+      const oauthNavigation = r.method === "GET" &&
+        ["/api/auth/start", "/api/auth/callback"].includes(url.pathname) &&
+        r.headers.get("Sec-Fetch-Mode") === "navigate" && !origin;
+      if ((origin && origin !== (env.SITE_ORIGIN || url.origin)) ||
+          (site && !["same-origin", "none"].includes(site) && !oauthNavigation)) {
+        return json2({ error: "Cross-origin API access is not allowed.", code: 403 }, 403);
+      }
+      const result = await api(r, env, ctx);
+      const headers = new Headers(result.headers);
+      headers.set("Cache-Control", "no-store");
+      headers.set("Cross-Origin-Resource-Policy", "same-origin");
+      headers.set("X-Content-Type-Options", "nosniff");
+      headers.set("Referrer-Policy", "no-referrer");
+      return new Response(result.body, { status: result.status, statusText: result.statusText, headers });
+    }
     if (!["GET", "HEAD"].includes(r.method)) fail3(405, "Method not allowed.");
     let path = url.pathname.replace(/\/$/, "") || "/";
     if (path === "/" && publishedExamples.has(url.searchParams.get("example"))) return new Response(null, { status: 308, headers: { ...secureHeaders("text/plain"), Location: (env.SITE_ORIGIN || url.origin) + "/app?example=" + encodeURIComponent(url.searchParams.get("example")) + "#workspace" } });
     if (path === "/app") path = "/translate";
+    if (path === "/offline") return new Response(r.method === "HEAD" ? null : ASSETS["/offline"].content,{headers:{...secureHeaders("text/html; charset=utf-8"),"X-PhraseLane-Offline":"1","Cache-Control":"public, max-age=300","X-Robots-Tag":"noindex"}});
     if (path === "/robots.txt" && env.INDEXING_ENABLED === "false") return new Response("User-agent: *\nDisallow: /\n", { headers: { ...secureHeaders("text/plain"), "X-Robots-Tag": "noindex, nofollow" } });
     if (path === "/robots.txt") return new Response(`User-agent: *
 Allow: /
@@ -1988,10 +2017,11 @@ Disallow: /account
 Disallow: /admin
 Disallow: /app
 Disallow: /reply
+Disallow: /desktop-link
 Disallow: /api/
 Sitemap: ${url.origin}/sitemap.xml`, { headers: secureHeaders("text/plain") });
     if (path === "/sitemap.xml") {
-      const pages = Object.keys(ASSETS).filter((x) => ASSETS[x].type.startsWith("text/html") && !["/account", "/admin", "/translate", "/reply", "/404"].includes(x));
+      const pages = Object.keys(ASSETS).filter((x) => ASSETS[x].type.startsWith("text/html") && !["/account", "/admin", "/translate", "/reply", "/desktop-link", "/desktop-link", "/offline", "/404"].includes(x));
       return new Response(`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map((p) => `<url><loc>${url.origin}${p}</loc></url>`).join("")}</urlset>`, { headers: secureHeaders("application/xml") });
     }
     const asset = ASSETS[path] || ASSETS["/404"];
@@ -2001,10 +2031,12 @@ Sitemap: ${url.origin}/sitemap.xml`, { headers: secureHeaders("text/plain") });
       text = text.replace(/<link[^>]*rel=[\"']canonical[\"'][^>]*>/gi, "").replace("</head>", `<link rel="canonical" href="${canonical3.replace(/[&<>\"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c])}"></head>`);
     }
     if (asset.type.startsWith("text/html")) text = runtimeBlocks(text, path, env);
-    return new Response(r.method === "HEAD" ? null : text, { status: ASSETS[path] ? 200 : 404, headers: { ...secureHeaders(asset.type), "Content-Security-Policy": path === "/account" ? secureHeaders(asset.type)["Content-Security-Policy"].replace("script-src 'self'", "script-src 'self' https://challenges.cloudflare.com").replace("connect-src 'self'", "connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com") : secureHeaders(asset.type)["Content-Security-Policy"], "Cache-Control": ["/", "/index", "/pricing", "/terms", "/billing-policy", "/legal", "/account", "/admin", "/translate", "/reply"].includes(path) ? "no-store" : "public, max-age=300", ...env.INDEXING_ENABLED === "false" || ["/account", "/admin", "/translate", "/reply"].includes(path) ? { "X-Robots-Tag": "noindex, nofollow" } : {} } });
+    return new Response(r.method === "HEAD" ? null : text, { status: ASSETS[path] ? 200 : 404, headers: { ...secureHeaders(asset.type), "Content-Security-Policy": path === "/account" ? secureHeaders(asset.type)["Content-Security-Policy"].replace("script-src 'self'", "script-src 'self' https://challenges.cloudflare.com").replace("connect-src 'self'", "connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com") : secureHeaders(asset.type)["Content-Security-Policy"], "Cache-Control": ["/", "/index", "/pricing", "/terms", "/billing-policy", "/legal", "/account", "/admin", "/translate", "/reply", "/desktop-link"].includes(path) ? "no-store" : "public, max-age=300", ...env.INDEXING_ENABLED === "false" || ["/account", "/admin", "/translate", "/reply", "/desktop-link"].includes(path) ? { "X-Robots-Tag": "noindex, nofollow" } : {} } });
   } catch (e) {
     const known = safeFailure(e);
-    const request_id = e.request_id || r.headers.get("X-Request-Id") || null;
+    // Reflect only the request identifier validated by the processing handler.
+    // Untrusted headers may contain secrets or oversized attacker-controlled data.
+    const request_id = typeof e.request_id === "string" && /^\d{13}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(e.request_id) ? e.request_id : null;
     return json2({ error: known?.message || (e instanceof HttpError ? e.message : "Service temporarily unavailable. Please try again."), code: known?.status || (e instanceof HttpError ? e.status : 503), request_id }, known?.status || (e instanceof HttpError ? e.status : 503));
   }
 }, async scheduled(event, env) {

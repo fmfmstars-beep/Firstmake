@@ -9,7 +9,7 @@
   const date = value => {
     if (value === undefined || value === null || value === '' || (typeof value === 'number' && value <= 0)) return 'Not retrieved';
     const parsed = new Date(typeof value === 'number' && value < 1e12 ? value * 1000 : value);
-    return Number.isFinite(parsed.getTime()) ? parsed.toLocaleString('en-GB', { timeZone: 'UTC' }) + ' UTC' : 'Not retrieved';
+    return Number.isFinite(parsed.getTime()) ? parsed.toLocaleString('en-GB', { timeZone: 'Asia/Tokyo' }) + ' JST' : 'Not retrieved';
   };
   const element = (tag, value) => {
     const result = document.createElement(tag);
@@ -112,7 +112,7 @@
     $('revenueSync').textContent = 'Last retrieved: Not retrieved';
     status('Retrieving owner records…');
     try {
-      const results = await Promise.allSettled([request('/api/admin/customers'), request('/api/admin/revenue')]);
+      const results = await Promise.allSettled([request('/api/admin/customers'), request('/api/admin/revenue' + periodQuery())]);
       const denied = results.find(result => result.status === 'rejected' && [401, 403].includes(result.reason.status));
       if (denied) throw denied.reason;
       const errors = [];
@@ -136,5 +136,8 @@
     } catch (error) { status(error.message, true); }
     finally { busy = false; $('moreCustomers').disabled = false; }
   });
+  function periodQuery(){const from=$('revenueFrom').value,to=$('revenueTo').value;if(!from&&!to)return '';if(!from||!to||from>to)throw Error('Choose both dates in chronological order.');return '?'+new URLSearchParams({from,to});}
+  $('todayRevenue').addEventListener('click',()=>{const today=new Date(Date.now()+9*3600000).toISOString().slice(0,10);$('revenueFrom').value=today;$('revenueTo').value=today;refresh();});
+  $('allRevenue').addEventListener('click',()=>{$('revenueFrom').value='';$('revenueTo').value='';refresh();});
   refresh();
 })();
