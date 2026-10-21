@@ -2034,7 +2034,9 @@ Sitemap: ${url.origin}/sitemap.xml`, { headers: secureHeaders("text/plain") });
     return new Response(r.method === "HEAD" ? null : text, { status: ASSETS[path] ? 200 : 404, headers: { ...secureHeaders(asset.type), "Content-Security-Policy": path === "/account" ? secureHeaders(asset.type)["Content-Security-Policy"].replace("script-src 'self'", "script-src 'self' https://challenges.cloudflare.com").replace("connect-src 'self'", "connect-src 'self' https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com") : secureHeaders(asset.type)["Content-Security-Policy"], "Cache-Control": ["/", "/index", "/pricing", "/terms", "/billing-policy", "/legal", "/account", "/admin", "/translate", "/reply", "/desktop-link"].includes(path) ? "no-store" : "public, max-age=300", ...env.INDEXING_ENABLED === "false" || ["/account", "/admin", "/translate", "/reply", "/desktop-link"].includes(path) ? { "X-Robots-Tag": "noindex, nofollow" } : {} } });
   } catch (e) {
     const known = safeFailure(e);
-    const request_id = e.request_id || r.headers.get("X-Request-Id") || null;
+    // Reflect only the request identifier validated by the processing handler.
+    // Untrusted headers may contain secrets or oversized attacker-controlled data.
+    const request_id = typeof e.request_id === "string" && /^\d{13}-[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(e.request_id) ? e.request_id : null;
     return json2({ error: known?.message || (e instanceof HttpError ? e.message : "Service temporarily unavailable. Please try again."), code: known?.status || (e instanceof HttpError ? e.status : 503), request_id }, known?.status || (e instanceof HttpError ? e.status : 503));
   }
 }, async scheduled(event, env) {
