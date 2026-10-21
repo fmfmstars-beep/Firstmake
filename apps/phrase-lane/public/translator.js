@@ -97,7 +97,9 @@ function usage() {
       ? 'Try the fixed examples, or sign in to translate your own message.'
       : !me.signedIn
         ? 'Google sign-in is currently unavailable. Try the fixed examples without signing in.'
-        : 'Cloud translation is unavailable. Fixed examples still work.';
+        : cloudReady()
+          ? 'Cloud translation is ready. Enter a message or record audio within your allowance.'
+          : 'Cloud translation is unavailable. Fixed examples still work.';
   $('#usage').textContent = me.signedIn && parts.length ? parts.join(' · ') : availability;
   $('#availability').hidden = cloudReady();
   $('#availability').textContent = availability;
