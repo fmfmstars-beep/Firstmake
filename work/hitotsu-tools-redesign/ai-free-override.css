@@ -1,0 +1,176 @@
+/*
+  ひとつ道具 — human-design override
+  Purpose: remove AI-generated-photo presentation and reduce template/AI visual cues
+  Apply after the existing production stylesheet.
+*/
+
+:root{
+  --ht-ink:#1d2924;
+  --ht-muted:#58665f;
+  --ht-green:#1f5a43;
+  --ht-green-hover:#174633;
+  --ht-line:#d8e0db;
+  --ht-soft:#f6f8f6;
+  --ht-paper:#ffffff;
+}
+
+html{background:var(--ht-paper)}
+body{
+  color:var(--ht-ink);
+  background:var(--ht-paper);
+  font-family:"Yu Gothic UI","Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,system-ui,sans-serif;
+  letter-spacing:0;
+}
+
+/* Remove generated-image presentation. User-uploaded previews are intentionally untouched. */
+.acquisition-page .acq-intro-photo,
+.retention-hero-sample,
+.first-use-sample-photo,
+img[src*="/assets/forest-light.webp"],
+img[src*="/assets/morning-lake.webp"],
+img[src*="/assets/morning-lake-small.webp"],
+img[src*="/assets/woodland-light.webp"],
+img[src*="/assets/retention-blog.webp"],
+img[src*="/assets/retention-blog-small.webp"],
+img[src*="/assets/retention-documents.webp"],
+img[src*="/assets/retention-documents-small.webp"],
+img[src*="/assets/retention-product.webp"],
+img[src*="/assets/retention-product-small.webp"],
+img[src*="/assets/cat-demo.webp"],
+img[src*="/assets/alpine-demo.webp"]{
+  display:none!important;
+}
+
+/* Reflow sections that previously reserved space for decorative/sample images. */
+.acquisition-page .page-heading.acq-intro,
+.retention-hero{
+  grid-template-columns:minmax(0,1fr)!important;
+  max-width:900px;
+}
+.first-use-sample{
+  min-height:0;
+  padding:14px 16px;
+}
+
+/* Less "AI landing page": fewer soft cards, shadows, gradients and oversized rounding. */
+#app :where(.panel,.workspace-panel,.tool-card,.home-task-card,.price-card,.workflow-preset,.sales-section,.ws-section,.plan-survey,.pricing-proof,.notice){
+  box-shadow:none!important;
+}
+#app :where(.tool-card,.home-task-card,.price-card,.workflow-preset,.sales-section,.ws-section,.plan-survey,.pricing-proof,.notice,.button,input,select,textarea){
+  border-radius:5px!important;
+}
+#app *{
+  background-image:none;
+}
+#app .button.primary{
+  color:#fff;
+  background:var(--ht-green);
+  border-color:var(--ht-green);
+}
+#app .button.primary:hover{
+  background:var(--ht-green-hover);
+  border-color:var(--ht-green-hover);
+}
+
+/* Product-first homepage hierarchy. */
+.home-page .concrete-hero{
+  max-width:1120px;
+  padding-top:38px;
+  padding-bottom:30px;
+}
+.home-page .concrete-hero h1{
+  color:var(--ht-ink);
+  max-width:800px;
+  font-family:inherit;
+  font-size:clamp(30px,3.2vw,40px);
+  font-weight:700;
+  line-height:1.55;
+  letter-spacing:-.025em;
+}
+.home-page .concrete-hero .concrete-intro{
+  color:#394a42;
+  max-width:760px;
+  font-size:16px;
+  line-height:1.9;
+}
+.home-page .concrete-hero .concrete-privacy{
+  color:var(--ht-muted);
+  max-width:760px;
+}
+.home-page .tool-directory,
+.home-page .concrete-tasks{
+  border-top:1px solid var(--ht-line);
+}
+.home-task-grid{
+  gap:12px;
+}
+.home-task-card{
+  border-color:var(--ht-line);
+  padding:22px;
+}
+.home-task-card .home-task-setting{
+  color:var(--ht-ink);
+  background:var(--ht-soft);
+  border-left:3px solid var(--ht-green);
+  border-radius:2px!important;
+}
+.home-page .concrete-workflow{
+  background:var(--ht-soft);
+  border-color:var(--ht-line);
+  border-radius:5px;
+}
+
+/* Navigation and footer should feel like a utility product, not a marketing template. */
+.site-header,
+.site-footer{
+  box-shadow:none!important;
+}
+.site-header{
+  border-bottom:1px solid var(--ht-line);
+}
+.site-footer{
+  border-top:1px solid var(--ht-line);
+}
+.site-footer nav a,
+.site-header a{
+  text-decoration-thickness:1px;
+  text-underline-offset:4px;
+}
+
+/* Utility pages: restrained headings and spacing. */
+.container:not(.home-page):not(.route-tools)>.page-heading h1,
+.ws-page .page-heading h1,
+.sales-settings .page-heading h1,
+.container .pricing-intro h1{
+  color:var(--ht-ink);
+  font-family:inherit!important;
+  letter-spacing:-.02em;
+}
+.container .document,
+.container .document p,
+.container .document li{
+  color:var(--ht-muted);
+}
+.container .document h2,
+.container .document h3{
+  color:var(--ht-ink);
+  font-family:inherit!important;
+}
+
+/* Preserve accessible focus indication. */
+#app :where(a,button,input,select,textarea):focus-visible{
+  outline:3px solid #8eb6a3!important;
+  outline-offset:3px!important;
+}
+
+@media (max-width:700px){
+  .home-page .concrete-hero{
+    padding-top:28px;
+  }
+  .home-page .concrete-hero h1{
+    font-size:28px;
+  }
+  .home-task-card{
+    padding:19px;
+  }
+}
