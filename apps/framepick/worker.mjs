@@ -61,7 +61,7 @@ const toolData = [
 
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
 
-function layout(title, body, description = "Find the AI video tool that fits your workflow, source material and budget.") {
+function layout(title, body, description = "Find the AI video tool that fits your workflow, source material and budget.", canonicalPath = "/") {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -71,7 +71,7 @@ function layout(title, body, description = "Find the AI video tool that fits you
 <meta name="description" content="${esc(description)}">
 <meta name="robots" content="index,follow">
 <meta name="theme-color" content="#0b1020">
-<link rel="canonical" href="https://framepick.fmfm-stars.workers.dev/">
+<link rel="canonical" href="https://framepick.fmfm-stars.workers.dev${esc(canonicalPath)}">
 <style>
 :root{--bg:#07101b;--panel:#0d1827;--panel2:#111f32;--text:#eef5ff;--muted:#9eb0c7;--line:#22344c;--accent:#62e8b6;--accent2:#7aa9ff;--warn:#ffce73;--max:1120px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 15% 0%,#13243c 0,transparent 30%),var(--bg);color:var(--text);line-height:1.55}
@@ -207,11 +207,11 @@ document.getElementById("calcBtn").addEventListener("click",calc);
 }
 
 function methodology(){
-  return layout("Methodology", `<main><section><div class="wrap prose"><span class="eyebrow">Transparent ranking</span><h1>How FramePick ranks tools</h1><p>FramePick is an independent comparison project. The finder scores each tool against three user-selected factors: intended use, starting material and monthly budget.</p><h2>Source policy</h2><p>We prefer first-party pricing pages, official help centers and official product documentation. If a current price cannot be verified confidently, we do not invent one. We link the source beside every tool so readers can confirm the latest terms.</p><h2>Scoring</h2><p>Each tool receives a 1–5 fit score for each answer. The three values are added and the highest scores are shown first. The current MVP does not use sponsorship, affiliate payouts or advertising revenue to change ranking order.</p><h2>Free vs trial</h2><p>“Free” is not treated as one category. A renewable free allowance, a one-time trial credit, a free account with paid credit packs and a paid-plan free trial are described separately.</p><h2>Update policy</h2><p>Snapshot last checked: ${LAST_CHECKED}. AI plan details change frequently. Always verify the official source immediately before paying.</p></div></section></main>`, "Learn how FramePick verifies pricing and ranks AI video tools.");
+  return layout("Methodology", `<main><section><div class="wrap prose"><span class="eyebrow">Transparent ranking</span><h1>How FramePick ranks tools</h1><p>FramePick is an independent comparison project. The finder scores each tool against three user-selected factors: intended use, starting material and monthly budget.</p><h2>Source policy</h2><p>We prefer first-party pricing pages, official help centers and official product documentation. If a current price cannot be verified confidently, we do not invent one. We link the source beside every tool so readers can confirm the latest terms.</p><h2>Scoring</h2><p>Each tool receives a 1–5 fit score for each answer. The three values are added and the highest scores are shown first. The current MVP does not use sponsorship, affiliate payouts or advertising revenue to change ranking order.</p><h2>Free vs trial</h2><p>“Free” is not treated as one category. A renewable free allowance, a one-time trial credit, a free account with paid credit packs and a paid-plan free trial are described separately.</p><h2>Update policy</h2><p>Snapshot last checked: ${LAST_CHECKED}. AI plan details change frequently. Always verify the official source immediately before paying.</p></div></section></main>`, "Learn how FramePick verifies pricing and ranks AI video tools.", "/methodology");
 }
 
 function privacy(){
-  return layout("Privacy", `<main><section><div class="wrap prose"><span class="eyebrow">Privacy-first MVP</span><h1>Privacy</h1><p>FramePick currently works entirely in your browser. The three-question finder and cost calculator do not require an account and do not send your answers to a database.</p><h2>Analytics and advertising</h2><p>This MVP does not intentionally include advertising scripts or third-party analytics. If analytics or advertising is added later, this page will be updated before those features are enabled.</p><h2>External links</h2><p>Links to AI tools and their official pricing or help pages take you to third-party websites. Their privacy policies apply after you leave FramePick.</p><h2>Data retention</h2><p>FramePick does not currently provide user accounts or store finder responses.</p></div></section></main>`, "FramePick privacy information for the current no-login, no-tracking MVP.");
+  return layout("Privacy", `<main><section><div class="wrap prose"><span class="eyebrow">Privacy-first MVP</span><h1>Privacy</h1><p>FramePick currently works entirely in your browser. The three-question finder and cost calculator do not require an account and do not send your answers to a database.</p><h2>Analytics and advertising</h2><p>This MVP does not intentionally include advertising scripts or third-party analytics. If analytics or advertising is added later, this page will be updated before those features are enabled.</p><h2>External links</h2><p>Links to AI tools and their official pricing or help pages take you to third-party websites. Their privacy policies apply after you leave FramePick.</p><h2>Data retention</h2><p>FramePick does not currently provide user accounts or store finder responses.</p></div></section></main>`, "FramePick privacy information for the current no-login, no-tracking MVP.", "/privacy");
 }
 
 function robots(){
