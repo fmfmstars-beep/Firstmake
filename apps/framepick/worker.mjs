@@ -1,61 +1,84 @@
-const LAST_CHECKED = "2026-10-28";
+const LAST_CHECKED = "2026-10-29";
 
 const toolData = [
   {
     id: "runway",
     name: "Runway",
     badge: "Pro workflow",
-    free: "Trial-style free tier",
-    freeDetail: "125 one-time credits; free generations include a watermark.",
+    free: "125 one-time free credits",
+    freeDetail: "Free-tier generations use watermarks. Standard includes 625 monthly credits.",
     paid: "Standard: $15/mo",
     bestFor: "Polished text-to-video and image-to-video work",
+    commercial: "Yes — Runway says its outputs have no non-commercial restriction",
+    watermark: "Free: yes",
+    maxRes: "720p (Gen-4.5)",
+    maxDuration: "Up to 10 sec (Gen-4.5)",
     strengths: ["Text to video", "Image to video", "Strong camera control", "Professional workflow"],
-    limits: ["Free credits do not renew", "Gen-4.5 requires Standard or higher"],
+    limits: ["Gen-4.5 requires Standard or higher", "Free credits are one-time"],
     official: "https://runwayml.com/",
-    source: "https://help.runwayml.com/hc/en-us/articles/50404627334547-Free-plan-details",
+    source: "https://help.runwayml.com/hc/en-us/articles/15124877443219-How-do-credits-work",
+    source2: "https://help.runwayml.com/hc/en-us/articles/46974685288467-Creating-with-Gen-4-5",
+    source3: "https://help.runwayml.com/hc/en-us/articles/18927776141715-Usage-rights",
     score: { marketing: 5, education: 4, social: 4, hobby: 3, text: 5, image: 5, audio: 2, none: 5, free: 2, low: 3, mid: 5, high: 5 }
   },
   {
     id: "pika",
     name: "Pika",
     badge: "Fast & social",
-    free: "Free account",
-    freeDetail: "0 monthly credits; credit packs can be purchased. No watermark, but the Free plan does not include commercial use.",
-    paid: "Starter: $10/mo · Creator: $35/mo",
+    free: "0 monthly credits · packs only",
+    freeDetail: "Free has no monthly allowance. Current plans export without a watermark.",
+    paid: "Starter: $10/mo · Creator: $35/mo · Fancy: $95/mo",
     bestFor: "Quick social clips and creative experiments",
+    commercial: "Free: no. Pricing says Starter: no; Creator/Fancy: yes. Pika Support currently conflicts and says Starter is commercial — verify before commercial work.",
+    watermark: "No watermark on current plans",
+    maxRes: "Model-dependent",
+    maxDuration: "Up to 30 sec on supported models",
     strengths: ["All models listed on Free", "No watermark", "Fast creative effects", "Good for social content"],
-    limits: ["Free includes no monthly credits", "Commercial license starts on Creator"],
+    limits: ["Official pages currently conflict on Starter commercial rights", "Free includes no monthly credits"],
     official: "https://pika.art/",
     source: "https://creation.pika.art/pricing",
-    score: { marketing: 3, education: 3, social: 5, hobby: 5, text: 4, image: 5, audio: 4, none: 4, free: 4, low: 5, mid: 5, high: 4 }
+    source2: "https://pika.art/support",
+    source3: "https://creation.pika.art/faq",
+    score: { marketing: 2, education: 3, social: 5, hobby: 5, text: 4, image: 5, audio: 4, none: 4, free: 4, low: 3, mid: 5, high: 4 }
   },
   {
     id: "luma",
     name: "Luma AI",
     badge: "Multi-model",
-    free: "Free trial credits",
-    freeDetail: "Luma states that free trial credits are included on its plans. Current plan prices can change, so check the official pricing page.",
-    paid: "Plus / Pro / Ultra",
+    free: "No free tier listed on current pricing page",
+    freeDetail: "FramePick no longer assumes a renewable free plan. Check the Luma pricing page before signup.",
+    paid: "Plus: $30/mo · Pro: $90/mo · Ultra: $300/mo",
     bestFor: "Multi-model creative work and continuity across projects",
+    commercial: "Yes — Plus and above list commercial use",
+    watermark: "Not stated on the current pricing page",
+    maxRes: "Up to 1080p (Ray3.2 listed)",
+    maxDuration: "10 sec T2V/I2V; up to 20 sec V2V",
     strengths: ["Ray video models", "Image + video workflows", "Project continuity", "Marketing and creative use cases"],
-    limits: ["Exact current price should be checked before purchase", "Credits expire with the billing cycle"],
+    limits: ["No free tier shown on current pricing page", "Monthly credits depend on plan"],
     official: "https://lumalabs.ai/",
-    source: "https://lumalabs.ai/llm-info",
-    score: { marketing: 5, education: 3, social: 4, hobby: 4, text: 4, image: 5, audio: 3, none: 4, free: 2, low: 2, mid: 4, high: 5 }
+    source: "https://lumalabs.ai/pricing",
+    source2: "https://lumalabs.ai/llm-info",
+    score: { marketing: 5, education: 3, social: 4, hobby: 4, text: 4, image: 5, audio: 3, none: 4, free: 1, low: 1, mid: 4, high: 5 }
   },
   {
     id: "firefly",
     name: "Adobe Firefly",
     badge: "Adobe ecosystem",
-    free: "Free trial available",
-    freeDetail: "Adobe lists free trials on paid Firefly plans. Video uses generative credits.",
-    paid: "Standard: $9.99/mo (US) · ¥1,580/mo (JP listed)",
+    free: "Free daily generations",
+    freeDetail: "Adobe says free users receive a daily generation allowance; paid plans add monthly generative credits.",
+    paid: "Standard: $9.99/mo (US) · ¥1,580/mo (JP)",
     bestFor: "Marketing teams already using Adobe tools",
+    commercial: "Yes for non-beta features unless Adobe explicitly says otherwise",
+    watermark: "No watermark on generated animations/video",
+    maxRes: "Up to 4K across supported video models",
+    maxDuration: "Model-dependent; most up to 8 sec, some up to 15 sec",
     strengths: ["Text to video", "Adobe workflow", "Partner models", "Video + audio tools"],
-    limits: ["Video uses premium generative credits", "Plan prices differ by region"],
+    limits: ["Video uses generative credits", "Plan prices differ by region"],
     official: "https://www.adobe.com/products/firefly.html",
     source: "https://www.adobe.com/products/firefly/plans.html",
-    score: { marketing: 5, education: 4, social: 4, hobby: 3, text: 5, image: 4, audio: 5, none: 4, free: 2, low: 5, mid: 5, high: 5 }
+    source2: "https://www.adobe.com/products/firefly/features/ai-video-generator.html",
+    source3: "https://www.adobe.com/products/firefly/features/ai-animation-generator.html",
+    score: { marketing: 5, education: 4, social: 4, hobby: 3, text: 5, image: 4, audio: 5, none: 4, free: 4, low: 5, mid: 5, high: 5 }
   }
 ];
 
@@ -109,20 +132,20 @@ function home() {
     <span class="tag">${esc(t.badge)}</span>
     <h3>${esc(t.name)}</h3>
     <p class="muted">${esc(t.bestFor)}</p>
-    <div class="meta"><div><b>Free access</b>${esc(t.free)}</div><div><b>Paid</b>${esc(t.paid)}</div></div>
+    <div class="meta"><div><b>Free access</b>${esc(t.free)}</div><div><b>Paid</b>${esc(t.paid)}</div><div><b>Commercial use</b>${esc(t.commercial)}</div><div><b>Watermark</b>${esc(t.watermark)}</div><div><b>Max resolution</b>${esc(t.maxRes)}</div><div><b>Max duration</b>${esc(t.maxDuration)}</div></div>
     <ul>${t.strengths.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
     <p class="tiny muted">${esc(t.freeDetail)}</p>
-    <a class="source-link" href="${esc(t.source)}" target="_blank" rel="noopener noreferrer">Official source ↗</a>
+    <div class="tiny"><a class="source-link" href="${esc(t.source)}" target="_blank" rel="noopener noreferrer">Primary official source ↗</a>${t.source2 ? ` · <a class="source-link" href="${esc(t.source2)}" target="_blank" rel="noopener noreferrer">Second source ↗</a>` : ""}</div>
   </article>`).join("");
 
-  const tableRows = toolData.map(t => `<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.free)}</td><td>${esc(t.paid)}</td><td>${esc(t.bestFor)}</td><td><a class="source-link" href="${esc(t.source)}" target="_blank" rel="noopener noreferrer">Verify ↗</a></td></tr>`).join("");
+  const tableRows = toolData.map(t => `<tr><td><b>${esc(t.name)}</b></td><td>${esc(t.free)}</td><td>${esc(t.paid)}</td><td>${esc(t.commercial)}</td><td>${esc(t.watermark)}</td><td>${esc(t.maxRes)}</td><td>${esc(t.maxDuration)}</td><td>${esc(t.bestFor)}</td><td><a class="source-link" href="${esc(t.source)}" target="_blank" rel="noopener noreferrer">Verify ↗</a></td></tr>`).join("");
 
   const dataJSON = JSON.stringify(toolData).replace(/</g, "\\u003c");
 
   const body = `
 <main>
 <section class="hero"><div class="wrap">
-  <span class="eyebrow">Independent comparison · Updated ${LAST_CHECKED}</span>
+  <span class="eyebrow">Verified against official sources · Checked ${LAST_CHECKED}</span>
   <h1>Pick an AI video tool <span class="grad">without the guesswork.</span></h1>
   <p class="lede">Answer three quick questions. FramePick ranks verified tools by your use case, source material and budget, then shows why each match made the list.</p>
   <div class="actions"><a class="btn primary" href="#quiz">Start the 3-question finder</a><a class="btn secondary" href="#compare">See the comparison</a></div>
@@ -147,7 +170,7 @@ function home() {
 
 <section><div class="wrap">
   <div class="section-head"><div><span class="eyebrow">At a glance</span><h2>Plan comparison</h2></div></div>
-  <div class="tablewrap"><table><thead><tr><th>Tool</th><th>Free access</th><th>Paid entry</th><th>Best for</th><th>Source</th></tr></thead><tbody>${tableRows}</tbody></table></div>
+  <div class="tablewrap"><table><thead><tr><th>Tool</th><th>Free access</th><th>Paid entry</th><th>Commercial use</th><th>Watermark</th><th>Max resolution</th><th>Max duration</th><th>Best for</th><th>Source</th></tr></thead><tbody>${tableRows}</tbody></table></div>
 </div></section>
 
 <section id="cost"><div class="wrap">
@@ -159,7 +182,7 @@ function home() {
       <div class="field"><label for="clips">Finished clips per month</label><input id="clips" type="number" min="1" step="1" value="20"></div>
       <button class="btn primary" id="calcBtn">Calculate</button>
     </div>
-    <div class="output" id="calcOut">Estimated cost per finished clip: <b>$0.75</b></div>
+    <div class="output" id="calcOut">Example: ($15 monthly plan + $0 extra credits) ÷ 20 finished clips = <b>$0.75 per finished clip</b></div>
   </div>
   <div class="notice" style="margin-top:12px">Prices and plan rules can change. FramePick does not sell these subscriptions and does not receive payment for ranking a tool in this MVP.</div>
 </div></section>
@@ -183,7 +206,11 @@ function render(){
     box.innerHTML='<div class="card" style="grid-column:1/-1"><b>Choose all three answers</b><div class="muted tiny">Your top three matches will appear here.</div></div>';
     return;
   }
-  const scored=TOOLS.map(t=>{
+  let pool=TOOLS;
+  if(choices.use==="marketing" && (choices.budget==="free" || choices.budget==="low")){
+    pool=TOOLS.filter(t=>t.id!=="pika");
+  }
+  const scored=pool.map(t=>{
     const score=(t.score[choices.use]||0)+(t.score[choices.input]||0)+(t.score[choices.budget]||0);
     return {...t,score};
   }).sort((a,b)=>b.score-a.score).slice(0,3);
@@ -191,14 +218,19 @@ function render(){
 }
 function explain(t){
   const budget={free:"free access",low:"lower-cost plans",mid:"mid-range plans",high:"higher-budget workflows"}[choices.budget];
-  return "Strong fit for "+choices.use+" work using "+choices.input+" as the starting point, with a good score for "+budget+".";
+  const useLabel={marketing:"ads and promotion",education:"explainers and education",social:"social posts",hobby:"hobby and personal work"}[choices.use];
+  const inputLabel={text:"text",image:"an image or photo",audio:"audio",none:"no starting asset"}[choices.input];
+  let reason="Scores strongly for "+useLabel+", starting from "+inputLabel+", and "+budget+".";
+  if(t.id==="pika") reason+=" Commercial-use guidance for Starter conflicts across Pika's own pages, so verify the plan before paid client or ad work.";
+  if(t.id==="luma" && choices.budget==="free") reason+=" Luma is not treated as a free option because its current pricing page does not list a free tier.";
+  return reason;
 }
 render();
 function calc(){
   const m=Math.max(0,Number(document.getElementById("monthly").value)||0);
   const e=Math.max(0,Number(document.getElementById("extra").value)||0);
   const c=Math.max(1,Number(document.getElementById("clips").value)||1);
-  document.getElementById("calcOut").innerHTML="Estimated cost per finished clip: <b>$"+((m+e)/c).toFixed(2)+"</b>";
+  document.getElementById("calcOut").innerHTML="Calculation: ($"+m.toFixed(2)+" monthly plan + $"+e.toFixed(2)+" extra credits) ÷ "+c+" finished clips = <b>$"+((m+e)/c).toFixed(2)+" per finished clip</b>";
 }
 document.getElementById("calcBtn").addEventListener("click",calc);
 </script>
@@ -207,7 +239,8 @@ document.getElementById("calcBtn").addEventListener("click",calc);
 }
 
 function methodology(){
-  return layout("Methodology", `<main><section><div class="wrap prose"><span class="eyebrow">Transparent ranking</span><h1>How FramePick ranks tools</h1><p>FramePick is an independent comparison project. The finder scores each tool against three user-selected factors: intended use, starting material and monthly budget.</p><h2>Source policy</h2><p>We prefer first-party pricing pages, official help centers and official product documentation. If a current price cannot be verified confidently, we do not invent one. We link the source beside every tool so readers can confirm the latest terms.</p><h2>Scoring</h2><p>Each tool receives a 1–5 fit score for each answer. The three values are added and the highest scores are shown first. The current MVP does not use sponsorship, affiliate payouts or advertising revenue to change ranking order.</p><h2>Free vs trial</h2><p>“Free” is not treated as one category. A renewable free allowance, a one-time trial credit, a free account with paid credit packs and a paid-plan free trial are described separately.</p><h2>Update policy</h2><p>Snapshot last checked: ${LAST_CHECKED}. AI plan details change frequently. Always verify the official source immediately before paying.</p></div></section></main>`, "Learn how FramePick verifies pricing and ranks AI video tools.", "/methodology");
+  const matrixRows = toolData.map(t => `<tr><td><b>${esc(t.name)}</b></td><td>${t.score.marketing}</td><td>${t.score.education}</td><td>${t.score.social}</td><td>${t.score.hobby}</td><td>${t.score.text}</td><td>${t.score.image}</td><td>${t.score.audio}</td><td>${t.score.none}</td><td>${t.score.free}</td><td>${t.score.low}</td><td>${t.score.mid}</td><td>${t.score.high}</td></tr>`).join("");
+  return layout("Methodology", `<main><section><div class="wrap prose"><span class="eyebrow">Transparent ranking · Checked ${LAST_CHECKED}</span><h1>How FramePick ranks tools</h1><p>FramePick scores each tool against three user-selected factors: intended use, starting material and monthly budget. The ranking is not a paid placement.</p><h2>Source policy</h2><p>We prefer first-party pricing pages, official help centers and official product documentation. If an official provider gives conflicting information, FramePick shows the conflict and uses the more cautious interpretation for commercial recommendations until the provider resolves it.</p><h2>Published scoring matrix</h2><p>Each cell below is a 1–5 fit score. A result adds one score from each of the three answer groups. For advertising and promotion, tools with unresolved commercial-use restrictions may also be excluded from low-budget results.</p><div class="tablewrap"><table><thead><tr><th>Tool</th><th>Ads</th><th>Education</th><th>Social</th><th>Hobby</th><th>Text</th><th>Image</th><th>Audio</th><th>Scratch</th><th>Free</th><th>&lt;$15</th><th>$15–$50</th><th>$50+</th></tr></thead><tbody>${matrixRows}</tbody></table></div><h2>Free vs trial</h2><p>“Free” is not treated as one category. A renewable allowance, one-time credits, a free account that requires credit packs, and a paid-plan free trial are described separately.</p><h2>Commercial-use rule</h2><p>Commercial suitability is now a first-class comparison field. When plan terms are unclear or conflict across official pages, FramePick does not assume commercial permission.</p><h2>Update policy</h2><p>Snapshot last checked: ${LAST_CHECKED}. AI plan details change frequently. Always verify the linked official source immediately before paying or using output in commercial work.</p></div></section></main>`, "Learn how FramePick verifies pricing and ranks AI video tools.", "/methodology");
 }
 
 function privacy(){
