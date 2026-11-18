@@ -8,9 +8,10 @@ import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const html = await readFile(resolve(root, 'index.html'), 'utf8');
+const sourceHtml = await readFile(resolve(root, 'index.html'), 'utf8');
+const html = sourceHtml.replace(/\r\n?/g, '\n');
 const origin = 'https://firstmake.fmfm-stars.workers.dev';
-async function build(t, document = html) {
+async function build(t, document = sourceHtml) {
   const dir = await mkdtemp(resolve(tmpdir(), 'firstmake-review-'));
   t.after(() => rm(dir, { recursive: true, force: true }));
   await mkdir(resolve(dir, 'scripts'));
